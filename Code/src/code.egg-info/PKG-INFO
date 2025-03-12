@@ -1,0 +1,7 @@
+Metadata-Version: 2.2
+Name: code
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+Requires-Dist: psycopg2-binary>=2.9.9
