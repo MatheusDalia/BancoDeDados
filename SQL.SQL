@@ -1,318 +1,360 @@
 -- =========================================================
 -- Sistema de Gerenciamento de Biblioteca Universitária
--- Implementação em PostgreSQL
+-- Implementação em PostgreSQL (Atualizado)
 -- =========================================================
-
 -- ---------------------------------------------------------
--- 1. DEFINIÇÃO DAS TABELAS PRINCIPAIS
+-- 1. CATEGORIAS E HIERARQUIA
 -- ---------------------------------------------------------
-
--- Criação das tabelas principais
+CREATE TABLE "Categoria" (
+    "id" SERIAL PRIMARY KEY,
+    "nome" VARCHAR(100) NOT NULL,
+    "parent_id" INTEGER,
+    FOREIGN KEY ("parent_id") REFERENCES "Categoria" ("id")
+);
+-- ---------------------------------------------------------
+-- 2. LIVROS E INFORMAÇÕES RELACIONADAS
+-- ---------------------------------------------------------
 CREATE TABLE "Livro" (
     "isbn" VARCHAR(13) PRIMARY KEY,
     "titulo" VARCHAR(255) NOT NULL,
     "subtitulo" VARCHAR(255),
     "editora" VARCHAR(100) NOT NULL,
-    "edicao" VARCHAR(50),
     "ano_publicacao" DATE NOT NULL,
-    "area_conhecimento" VARCHAR(100) NOT NULL,
-    "data_cadastro" DATE NOT NULL DEFAULT CURRENT_DATE
+    "categoria_id" INTEGER NOT NULL,
+    FOREIGN KEY ("categoria_id") REFERENCES "Categoria" ("id")
 );
-
+CREATE TABLE "Livro_Detalhe" (
+    "isbn" VARCHAR(13) PRIMARY KEY,
+    "resumo" TEXT,
+    "numero_paginas" INTEGER,
+    FOREIGN KEY ("isbn") REFERENCES "Livro" ("isbn") ON DELETE CASCADE
+);
+CREATE TABLE "Autor" (
+    "id" SERIAL PRIMARY KEY,
+    "nome" VARCHAR(100) NOT NULL
+);
+CREATE TABLE "Livro_Autor" (
+    "isbn" VARCHAR(13) NOT NULL,
+    "autor_id" INTEGER NOT NULL,
+    PRIMARY KEY ("isbn", "autor_id"),
+    FOREIGN KEY ("isbn") REFERENCES "Livro" ("isbn"),
+    FOREIGN KEY ("autor_id") REFERENCES "Autor" ("id")
+);
+CREATE TABLE "PalavraChave" (
+    "id" SERIAL PRIMARY KEY,
+    "palavra" VARCHAR(50) NOT NULL
+);
+CREATE TABLE "Livro_PalavraChave" (
+    "isbn" VARCHAR(13) NOT NULL,
+    "palavra_id" INTEGER NOT NULL,
+    PRIMARY KEY ("isbn", "palavra_id"),
+    FOREIGN KEY ("isbn") REFERENCES "Livro" ("isbn"),
+    FOREIGN KEY ("palavra_id") REFERENCES "PalavraChave" ("id")
+);
+-- ---------------------------------------------------------
+-- 3. EXEMPLARES
+-- ---------------------------------------------------------
 CREATE TABLE "Exemplar" (
     "codigo_tombamento" VARCHAR(20) PRIMARY KEY,
     "isbn" VARCHAR(13) NOT NULL,
-    "codigo_barras" VARCHAR(50) UNIQUE,
-    "status_conservacao" VARCHAR(20) NOT NULL,
-    "data_aquisicao" DATE NOT NULL,
-    "secao" VARCHAR(50) NOT NULL,
-    "prateleira" VARCHAR(20) NOT NULL,
-    "posicao" VARCHAR(20) NOT NULL,
+    "status" VARCHAR(20) NOT NULL,
+    "localizacao" VARCHAR(100) NOT NULL,
     FOREIGN KEY ("isbn") REFERENCES "Livro" ("isbn")
 );
-
 -- ---------------------------------------------------------
--- 2. USUÁRIOS E ESPECIALIZAÇÕES
+-- 4. USUÁRIOS E INFORMAÇÕES RELACIONADAS
 -- ---------------------------------------------------------
-
 CREATE TABLE "Usuario" (
     "id" SERIAL PRIMARY KEY,
-    "tipo_usuario" VARCHAR(20) NOT NULL,
     "nome" VARCHAR(100) NOT NULL,
-    "cpf" VARCHAR(11) UNIQUE NOT NULL,
-    "rg" VARCHAR(20) NOT NULL,
-    "data_nascimento" DATE NOT NULL,
-    "email" VARCHAR(100) UNIQUE NOT NULL,
-    "login" VARCHAR(50) UNIQUE NOT NULL,
-    "senha" VARCHAR(255) NOT NULL,
-    "status_conta" VARCHAR(20) NOT NULL DEFAULT 'ATIVO',
-    CONSTRAINT "chk_tipo_usuario" 
-        CHECK (tipo_usuario IN ('ALUNO', 'PROFESSOR', 'FUNCIONARIO'))
+    "email" VARCHAR(100) UNIQUE NOT NULL
 );
-
-CREATE TABLE "Aluno" (
-    "id" INTEGER PRIMARY KEY REFERENCES "Usuario" ("id") ON DELETE CASCADE,
-    "numero_matricula" VARCHAR(20) UNIQUE NOT NULL,
-    "curso" VARCHAR(100) NOT NULL
+CREATE TABLE "Endereco" (
+    "usuario_id" INTEGER PRIMARY KEY,
+    "logradouro" VARCHAR(100) NOT NULL,
+    "numero" VARCHAR(10) NOT NULL,
+    "cidade" VARCHAR(50) NOT NULL,
+    FOREIGN KEY ("usuario_id") REFERENCES "Usuario" ("id") ON DELETE CASCADE
 );
-
-CREATE TABLE "Professor" (
-    "id" INTEGER PRIMARY KEY REFERENCES "Usuario" ("id") ON DELETE CASCADE,
-    "siape" VARCHAR(20) UNIQUE NOT NULL,
-    "departamento" VARCHAR(100) NOT NULL
+CREATE TABLE "Telefone_Usuario" (
+    "usuario_id" INTEGER NOT NULL,
+    "telefone" VARCHAR(20) NOT NULL,
+    PRIMARY KEY ("usuario_id", "telefone"),
+    FOREIGN KEY ("usuario_id") REFERENCES "Usuario" ("id") ON DELETE CASCADE
 );
-
-CREATE TABLE "Funcionario" (
-    "id" INTEGER PRIMARY KEY REFERENCES "Usuario" ("id") ON DELETE CASCADE,
-    "siape" VARCHAR(20) UNIQUE NOT NULL,
-    "setor" VARCHAR(100) NOT NULL
-);
-
 -- ---------------------------------------------------------
--- 3. EMPRÉSTIMOS E MULTAS
+-- 5. EMPRÉSTIMOS
 -- ---------------------------------------------------------
-
 CREATE TABLE "Emprestimo" (
     "id" SERIAL PRIMARY KEY,
-    "usuario_id" INTEGER NOT NULL REFERENCES "Usuario" ("id"),
-    "exemplar_codigo" VARCHAR(20) NOT NULL 
-        REFERENCES "Exemplar" ("codigo_tombamento"),
-    "funcionario_id" INTEGER NOT NULL REFERENCES "Funcionario" ("id"),
-    "data_emprestimo" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "usuario_id" INTEGER NOT NULL,
+    "exemplar_id" VARCHAR(20) NOT NULL,
+    "data_emprestimo" DATE NOT NULL DEFAULT CURRENT_DATE,
     "data_devolucao_prevista" DATE NOT NULL,
     "data_devolucao_efetiva" DATE,
     "status" VARCHAR(20) NOT NULL DEFAULT 'ATIVO',
     "numero_renovacoes" INTEGER NOT NULL DEFAULT 0,
-    "observacoes" TEXT
+    "observacoes" TEXT,
+    FOREIGN KEY ("usuario_id") REFERENCES "Usuario" ("id"),
+    FOREIGN KEY ("exemplar_id") REFERENCES "Exemplar" ("codigo_tombamento")
 );
-
-CREATE TABLE "Multa" (
-    "id" SERIAL PRIMARY KEY,
-    "emprestimo_id" INTEGER NOT NULL REFERENCES "Emprestimo" ("id"),
-    "valor" DECIMAL(10,2) NOT NULL,
-    "status" VARCHAR(20) NOT NULL DEFAULT 'PENDENTE',
-    "data_geracao" DATE NOT NULL DEFAULT CURRENT_DATE,
-    "data_pagamento" DATE
-);
-
--- ---------------------------------------------------------
--- 4. ATRIBUTOS MULTIVALORADOS E COMPOSTOS
--- ---------------------------------------------------------
-
-CREATE TABLE "Telefone_Usuario" (
-    "usuario_id" INTEGER REFERENCES "Usuario" ("id"),
-    "telefone" VARCHAR(20),
-    PRIMARY KEY ("usuario_id", "telefone")
-);
-
-CREATE TABLE "Autor_Livro" (
-    "isbn" VARCHAR(13) REFERENCES "Livro" ("isbn"),
-    "autor" VARCHAR(100),
-    PRIMARY KEY ("isbn", "autor")
-);
-
-CREATE TABLE "PalavraChave_Livro" (
-    "isbn" VARCHAR(13) REFERENCES "Livro" ("isbn"),
-    "palavra_chave" VARCHAR(50),
-    PRIMARY KEY ("isbn", "palavra_chave")
-);
-
-CREATE TABLE "Endereco_Usuario" (
-    "usuario_id" INTEGER PRIMARY KEY REFERENCES "Usuario" ("id"),
-    "logradouro" VARCHAR(100) NOT NULL,
-    "numero" VARCHAR(10) NOT NULL,
-    "complemento" VARCHAR(50),
-    "bairro" VARCHAR(50) NOT NULL,
-    "cidade" VARCHAR(50) NOT NULL,
-    "estado" CHAR(2) NOT NULL,
-    "cep" VARCHAR(8) NOT NULL
-);
-
--- ---------------------------------------------------------
--- 5. TABELA DE RESERVAS (MENCIONADA NO ESQUEMA RELACIONAL)
--- ---------------------------------------------------------
-
-CREATE TABLE "Reserva" (
-    "id" SERIAL PRIMARY KEY,
-    "usuario_id" INTEGER NOT NULL REFERENCES "Usuario" ("id"),
-    "exemplar_codigo" VARCHAR(20) NOT NULL REFERENCES "Exemplar" ("codigo_tombamento"),
-    "data_reserva" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "data_validade" DATE NOT NULL,
-    "status" VARCHAR(20) NOT NULL DEFAULT 'ATIVA'
-);
-
 -- =========================================================
 -- OPERAÇÕES E CONSULTAS
 -- =========================================================
-
 -- ---------------------------------------------------------
 -- 1. GESTÃO DO ACERVO
 -- ---------------------------------------------------------
-
--- 1.1 Cadastro de novo livro
-INSERT INTO "Livro" (isbn, titulo, editora, edicao, 
-    ano_publicacao, area_conhecimento)
-VALUES ('9788533302273', 'Dom Casmurro', 'Editora XYZ', 
-    '1ª Edição', '2023-01-01', 'Literatura');
-
-INSERT INTO "Autor_Livro" (isbn, autor)
-VALUES ('9788533302273', 'Machado de Assis');
-
--- 1.2 Registro de exemplares
-INSERT INTO "Exemplar" (codigo_tombamento, isbn, 
-    codigo_barras, status_conservacao, data_aquisicao,
-    secao, prateleira, posicao)
-VALUES ('TOMB001', '9788533302273', 'BAR001', 'NOVO',
-    CURRENT_DATE, 'LIT', 'A', '01');
-
--- 1.3 Busca de livros por título com verificação de disponibilidade
-SELECT l.*, COUNT(e.codigo_tombamento) as exemplares_disponiveis
+-- 1.1 Inserir categoria
+INSERT INTO "Categoria" (nome, parent_id)
+VALUES ('Literatura', NULL);
+INSERT INTO "Categoria" (nome, parent_id)
+VALUES ('Literatura Brasileira', 1);
+-- 1.2 Cadastro de novo livro
+INSERT INTO "Livro" (
+        isbn,
+        titulo,
+        subtitulo,
+        editora,
+        ano_publicacao,
+        categoria_id
+    )
+VALUES (
+        '9788533302273',
+        'Dom Casmurro',
+        'Romance Clássico',
+        'Editora XYZ',
+        '2023-01-01',
+        2
+    );
+-- 1.3 Inserir detalhes do livro
+INSERT INTO "Livro_Detalhe" (isbn, resumo, numero_paginas)
+VALUES (
+        '9788533302273',
+        'Um dos romances mais célebres de Machado de Assis...',
+        256
+    );
+-- 1.4 Cadastrar autor
+INSERT INTO "Autor" (nome)
+VALUES ('Machado de Assis');
+-- 1.5 Associar autor ao livro
+INSERT INTO "Livro_Autor" (isbn, autor_id)
+VALUES ('9788533302273', 1);
+-- 1.6 Cadastrar palavras-chave
+INSERT INTO "PalavraChave" (palavra)
+VALUES ('romance');
+INSERT INTO "PalavraChave" (palavra)
+VALUES ('literatura brasileira');
+-- 1.7 Associar palavras-chave ao livro
+INSERT INTO "Livro_PalavraChave" (isbn, palavra_id)
+VALUES ('9788533302273', 1);
+INSERT INTO "Livro_PalavraChave" (isbn, palavra_id)
+VALUES ('9788533302273', 2);
+-- 1.8 Registro de exemplares
+INSERT INTO "Exemplar" (codigo_tombamento, isbn, status, localizacao)
+VALUES (
+        'TOMB001',
+        '9788533302273',
+        'DISPONÍVEL',
+        'Estante A, Prateleira 3'
+    );
+-- 1.9 Busca de livros por categoria
+SELECT l.*,
+    ld.numero_paginas
 FROM "Livro" l
-LEFT JOIN "Exemplar" e ON l.isbn = e.isbn
-LEFT JOIN "Emprestimo" emp ON e.codigo_tombamento = 
-    emp.exemplar_codigo AND emp.data_devolucao_efetiva IS NULL
-WHERE l.titulo ILIKE '%pesquisa%'
-GROUP BY l.isbn;
-
--- 1.4 Relatório de acervo por área de conhecimento
-SELECT l.area_conhecimento, 
-    COUNT(DISTINCT l.isbn) as total_titulos,
-    COUNT(e.codigo_tombamento) as total_exemplares
+    JOIN "Livro_Detalhe" ld ON l.isbn = ld.isbn
+    JOIN "Categoria" c ON l.categoria_id = c.id
+WHERE c.nome = 'Literatura Brasileira'
+    OR c.parent_id = (
+        SELECT id
+        FROM "Categoria"
+        WHERE nome = 'Literatura Brasileira'
+    );
+-- 1.10 Busca de livros por autor
+SELECT l.*,
+    a.nome as autor
 FROM "Livro" l
-LEFT JOIN "Exemplar" e ON l.isbn = e.isbn
-GROUP BY l.area_conhecimento;
-
+    JOIN "Livro_Autor" la ON l.isbn = la.isbn
+    JOIN "Autor" a ON la.autor_id = a.id
+WHERE a.nome ILIKE '%Machado%';
+-- 1.11 Busca de livros por palavra-chave
+SELECT l.*,
+    p.palavra
+FROM "Livro" l
+    JOIN "Livro_PalavraChave" lp ON l.isbn = lp.isbn
+    JOIN "PalavraChave" p ON lp.palavra_id = p.id
+WHERE p.palavra ILIKE '%romance%';
+-- 1.12 Verificação de disponibilidade de exemplares
+SELECT l.titulo,
+    e.codigo_tombamento,
+    e.status,
+    e.localizacao
+FROM "Livro" l
+    JOIN "Exemplar" e ON l.isbn = e.isbn
+    LEFT JOIN "Emprestimo" emp ON e.codigo_tombamento = emp.exemplar_id
+    AND emp.data_devolucao_efetiva IS NULL
+WHERE l.isbn = '9788533302273';
 -- ---------------------------------------------------------
 -- 2. GESTÃO DE USUÁRIOS
 -- ---------------------------------------------------------
-
--- 2.1 Cadastro de novo usuário (aluno)
-INSERT INTO "Usuario" (nome, cpf, tipo_usuario, email, 
-    login, senha, status_conta)
-VALUES ('João Silva', '12345678901', 'ALUNO',
-    'joao@email.com', 'joao.silva', 
-    'senha_hash', 'ATIVO');
-
-INSERT INTO "Aluno" (id, numero_matricula, curso)
-VALUES (CURRVAL('"Usuario_id_seq"'), '20241001', 
-    'Ciência da Computação');
-
--- 2.2 Desativação de usuário com multas pendentes
-UPDATE "Usuario"
-SET status_conta = 'INATIVO'
-WHERE id = 1001 AND EXISTS (
-    SELECT 1 FROM "Multa" m
-    JOIN "Emprestimo" e ON m.emprestimo_id = e.id
-    WHERE e.usuario_id = 1001 
-    AND m.status = 'PENDENTE'
-);
-
+-- 2.1 Cadastro de novo usuário
+INSERT INTO "Usuario" (nome, email)
+VALUES ('João Silva', 'joao.silva@email.com');
+-- 2.2 Adicionar endereço do usuário
+INSERT INTO "Endereco" (usuario_id, logradouro, numero, cidade)
+VALUES (1, 'Rua das Flores', '123', 'Recife');
+-- 2.3 Adicionar telefone do usuário
+INSERT INTO "Telefone_Usuario" (usuario_id, telefone)
+VALUES (1, '(81) 98765-4321');
+-- 2.4 Buscar usuário com todas as informações
+SELECT u.*,
+    e.logradouro,
+    e.numero,
+    e.cidade,
+    array_agg(t.telefone) as telefones
+FROM "Usuario" u
+    LEFT JOIN "Endereco" e ON u.id = e.usuario_id
+    LEFT JOIN "Telefone_Usuario" t ON u.id = t.usuario_id
+WHERE u.id = 1
+GROUP BY u.id,
+    e.logradouro,
+    e.numero,
+    e.cidade;
 -- ---------------------------------------------------------
 -- 3. EMPRÉSTIMOS E DEVOLUÇÕES
 -- ---------------------------------------------------------
-
--- 3.1 Verificar quantidade de empréstimos ativos de um usuário
-SELECT COUNT(*) as emprestimos_ativos
-FROM "Emprestimo"
-WHERE usuario_id = 1001
-AND data_devolucao_efetiva IS NULL;
-
--- 3.2 Registrar um novo empréstimo
-INSERT INTO "Emprestimo" (usuario_id, exemplar_codigo,
-    funcionario_id, data_devolucao_prevista)
-VALUES (1001, 'TOMB001', 2001, 
-    CURRENT_DATE + INTERVAL '15 days');
-
+-- 3.1 Registrar um novo empréstimo
+INSERT INTO "Emprestimo" (usuario_id, exemplar_id, data_devolucao_prevista)
+VALUES (1, 'TOMB001', CURRENT_DATE + INTERVAL '15 days');
+-- 3.2 Verificar empréstimos ativos de um usuário
+SELECT e.id,
+    l.titulo,
+    e.data_emprestimo,
+    e.data_devolucao_prevista,
+    CASE
+        WHEN CURRENT_DATE > e.data_devolucao_prevista THEN 'ATRASADO'
+        ELSE 'REGULAR'
+    END as situacao
+FROM "Emprestimo" e
+    JOIN "Exemplar" ex ON e.exemplar_id = ex.codigo_tombamento
+    JOIN "Livro" l ON ex.isbn = l.isbn
+WHERE e.usuario_id = 1
+    AND e.data_devolucao_efetiva IS NULL;
 -- 3.3 Processar devolução de exemplar
 UPDATE "Emprestimo"
 SET data_devolucao_efetiva = CURRENT_DATE,
     status = 'CONCLUIDO'
-WHERE id = 3001;
-
--- 3.4 Gerar multa para empréstimo em atraso
-INSERT INTO "Multa" (emprestimo_id, valor, status)
-SELECT id, 
-    (CURRENT_DATE - data_devolucao_prevista) * 1.00,
-    'PENDENTE'
-FROM "Emprestimo"
-WHERE id = 3001 
-AND CURRENT_DATE > data_devolucao_prevista;
-
+WHERE id = 1;
+-- 3.4 Renovar empréstimo
+UPDATE "Emprestimo"
+SET data_devolucao_prevista = CURRENT_DATE + INTERVAL '15 days',
+    numero_renovacoes = numero_renovacoes + 1
+WHERE id = 1
+    AND data_devolucao_efetiva IS NULL
+    AND numero_renovacoes < 3;
 -- ---------------------------------------------------------
 -- 4. RELATÓRIOS E CONSULTAS ANALÍTICAS
 -- ---------------------------------------------------------
-
--- 4.1 Estatísticas de uso por área de conhecimento
-SELECT l.area_conhecimento,
-    COUNT(e.id) as total_emprestimos,
-    COUNT(DISTINCT e.usuario_id) as usuarios_unicos
+-- 4.1 Relatório de livros mais emprestados
+SELECT l.isbn,
+    l.titulo,
+    COUNT(e.id) as total_emprestimos
 FROM "Livro" l
-JOIN "Exemplar" ex ON l.isbn = ex.isbn
-JOIN "Emprestimo" e ON ex.codigo_tombamento = e.exemplar_codigo
-WHERE e.data_emprestimo >= CURRENT_DATE - INTERVAL '30 days'
-GROUP BY l.area_conhecimento
+    JOIN "Exemplar" ex ON l.isbn = ex.isbn
+    JOIN "Emprestimo" e ON ex.codigo_tombamento = e.exemplar_id
+GROUP BY l.isbn,
+    l.titulo
+ORDER BY total_emprestimos DESC
+LIMIT 10;
+-- 4.2 Relatório de empréstimos por categoria
+SELECT c.nome as categoria,
+    COUNT(e.id) as total_emprestimos
+FROM "Categoria" c
+    JOIN "Livro" l ON c.id = l.categoria_id
+    JOIN "Exemplar" ex ON l.isbn = ex.isbn
+    JOIN "Emprestimo" e ON ex.codigo_tombamento = e.exemplar_id
+GROUP BY c.nome
 ORDER BY total_emprestimos DESC;
-
--- 4.2 Relatório de multas pendentes por usuário
-SELECT u.nome, COUNT(m.id) as total_multas,
-    SUM(m.valor) as valor_total,
-    MAX(m.data_geracao) as multa_mais_recente
-FROM "Usuario" u
-JOIN "Emprestimo" e ON u.id = e.usuario_id
-JOIN "Multa" m ON e.id = m.emprestimo_id
-WHERE m.status = 'PENDENTE'
-GROUP BY u.id, u.nome
-ORDER BY valor_total DESC;
-
--- 4.3 Consulta de atrasos para notificações
-SELECT u.nome, u.email, l.titulo,
+-- 4.3 Identificação de atrasos
+SELECT u.nome,
+    u.email,
+    l.titulo,
     e.data_devolucao_prevista,
     CURRENT_DATE - e.data_devolucao_prevista as dias_atraso
 FROM "Emprestimo" e
-JOIN "Usuario" u ON e.usuario_id = u.id
-JOIN "Exemplar" ex ON e.exemplar_codigo = ex.codigo_tombamento
-JOIN "Livro" l ON ex.isbn = l.isbn
+    JOIN "Usuario" u ON e.usuario_id = u.id
+    JOIN "Exemplar" ex ON e.exemplar_id = ex.codigo_tombamento
+    JOIN "Livro" l ON ex.isbn = l.isbn
 WHERE e.data_devolucao_efetiva IS NULL
-AND e.data_devolucao_prevista < CURRENT_DATE;
-
--- 4.4 Status da fila de reservas
-SELECT l.titulo, r.data_reserva,
-    u.nome as usuario,
-    ROW_NUMBER() OVER (
-        PARTITION BY r.exemplar_codigo 
-        ORDER BY r.data_reserva
-    ) as posicao_fila
-FROM "Reserva" r
-JOIN "Usuario" u ON r.usuario_id = u.id
-JOIN "Exemplar" ex ON r.exemplar_codigo = ex.codigo_tombamento
-JOIN "Livro" l ON ex.isbn = l.isbn
-WHERE r.status = 'ATIVA'
-ORDER BY r.exemplar_codigo, r.data_reserva;
-
+    AND e.data_devolucao_prevista < CURRENT_DATE;
+-- 4.4 Histórico de empréstimos de um usuário
+SELECT e.id,
+    l.titulo,
+    a.nome as autor,
+    e.data_emprestimo,
+    e.data_devolucao_prevista,
+    e.data_devolucao_efetiva,
+    e.numero_renovacoes
+FROM "Emprestimo" e
+    JOIN "Exemplar" ex ON e.exemplar_id = ex.codigo_tombamento
+    JOIN "Livro" l ON ex.isbn = l.isbn
+    JOIN "Livro_Autor" la ON l.isbn = la.isbn
+    JOIN "Autor" a ON la.autor_id = a.id
+WHERE e.usuario_id = 1
+ORDER BY e.data_emprestimo DESC;
 -- ---------------------------------------------------------
 -- 5. INDICADORES DE DESEMPENHO
 -- ---------------------------------------------------------
-
--- 5.1 Taxa de circulação dos livros
-SELECT l.isbn, l.titulo,
-    COUNT(e.id) as total_emprestimos,
-    COUNT(e.id)::float / 
-        EXTRACT(MONTH FROM AGE(CURRENT_DATE, MIN(e.data_emprestimo)))
-    as media_mensal
+-- 5.1 Taxa de circulação dos livros por mês
+SELECT l.isbn,
+    l.titulo,
+    DATE_TRUNC('month', e.data_emprestimo) as mes,
+    COUNT(e.id) as emprestimos_no_mes
 FROM "Livro" l
-JOIN "Exemplar" ex ON l.isbn = ex.isbn
-LEFT JOIN "Emprestimo" e ON ex.codigo_tombamento = e.exemplar_codigo
-GROUP BY l.isbn, l.titulo
-HAVING MIN(e.data_emprestimo) IS NOT NULL;
-
--- 5.2 Eficiência do acervo por área de conhecimento
-SELECT l.area_conhecimento,
+    JOIN "Exemplar" ex ON l.isbn = ex.isbn
+    JOIN "Emprestimo" e ON ex.codigo_tombamento = e.exemplar_id
+WHERE e.data_emprestimo >= CURRENT_DATE - INTERVAL '6 months'
+GROUP BY l.isbn,
+    l.titulo,
+    DATE_TRUNC('month', e.data_emprestimo)
+ORDER BY l.titulo,
+    mes;
+-- 5.2 Eficiência do acervo por categoria
+SELECT c.nome as categoria,
     COUNT(DISTINCT l.isbn) as total_titulos,
-    COUNT(DISTINCT e.id) as total_emprestimos,
-    COUNT(DISTINCT e.id)::float / COUNT(DISTINCT l.isbn)
-    as emprestimos_por_titulo
-FROM "Livro" l
-LEFT JOIN "Exemplar" ex ON l.isbn = ex.isbn
-LEFT JOIN "Emprestimo" e ON ex.codigo_tombamento = e.exemplar_codigo
-WHERE e.data_emprestimo >= CURRENT_DATE - INTERVAL '1 year'
-GROUP BY l.area_conhecimento;
+    COUNT(DISTINCT ex.codigo_tombamento) as total_exemplares,
+    COUNT(e.id) as total_emprestimos,
+    CASE
+        WHEN COUNT(DISTINCT ex.codigo_tombamento) = 0 THEN 0
+        ELSE COUNT(e.id)::float / COUNT(DISTINCT ex.codigo_tombamento)
+    END as emprestimos_por_exemplar
+FROM "Categoria" c
+    LEFT JOIN "Livro" l ON c.id = l.categoria_id
+    LEFT JOIN "Exemplar" ex ON l.isbn = ex.isbn
+    LEFT JOIN "Emprestimo" e ON ex.codigo_tombamento = e.exemplar_id
+    AND e.data_emprestimo >= CURRENT_DATE - INTERVAL '1 year'
+GROUP BY c.nome
+ORDER BY emprestimos_por_exemplar DESC;
+-- 5.3 Análise de autores mais populares
+SELECT a.nome as autor,
+    COUNT(DISTINCT l.isbn) as total_livros,
+    COUNT(e.id) as total_emprestimos
+FROM "Autor" a
+    JOIN "Livro_Autor" la ON a.id = la.autor_id
+    JOIN "Livro" l ON la.isbn = l.isbn
+    JOIN "Exemplar" ex ON l.isbn = ex.isbn
+    LEFT JOIN "Emprestimo" e ON ex.codigo_tombamento = e.exemplar_id
+GROUP BY a.nome
+ORDER BY total_emprestimos DESC
+LIMIT 10;
+-- 5.4 Análise de palavras-chave mais relevantes
+SELECT p.palavra,
+    COUNT(DISTINCT l.isbn) as total_livros,
+    COUNT(e.id) as total_emprestimos
+FROM "PalavraChave" p
+    JOIN "Livro_PalavraChave" lp ON p.id = lp.palavra_id
+    JOIN "Livro" l ON lp.isbn = l.isbn
+    JOIN "Exemplar" ex ON l.isbn = ex.isbn
+    LEFT JOIN "Emprestimo" e ON ex.codigo_tombamento = e.exemplar_id
+GROUP BY p.palavra
+ORDER BY total_emprestimos DESC
+LIMIT 10;
