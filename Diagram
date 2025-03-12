@@ -1,0 +1,98 @@
+/* ------------------ Tabela Livro (1) ------------------ */
+Table Livro {
+  isbn            varchar   [pk]
+  titulo          varchar
+  subtitulo       varchar
+  editora         varchar
+  ano_publicacao  date
+  categoria_id    int       [ref: > Categoria.id] 
+}
+
+/* ------------------ Tabela Exemplar (1:N – cada livro pode ter vários exemplares) ------------------ */
+Table Exemplar {
+  codigo_tombamento varchar   [pk]
+  isbn              varchar   [ref: > Livro.isbn]
+  status            varchar   
+  localizacao       varchar
+}
+
+/* ------------------ Tabela Livro_Detalhe (1:1 – detalhes complementares do livro) ------------------ */
+Table Livro_Detalhe {
+  isbn            varchar   [pk, ref: > Livro.isbn]
+  resumo          text
+  numero_paginas  int
+}
+
+/* ------------------ Tabela Autor (Entidade para relação N:N com Livro) ------------------ */
+Table Autor {
+  id    int    [pk]
+  nome  varchar
+}
+
+/* ------------------ Tabela Livro_Autor (M:N – relacionamento entre Livro e Autor) ------------------ */
+Table Livro_Autor {
+  isbn      varchar   [ref: > Livro.isbn]
+  autor_id  int       [ref: > Autor.id]
+  indexes {
+    (isbn, autor_id) [pk]
+  }
+}
+
+/* ------------------ Tabela Categoria (Hierárquica – permite subcategorias via parent_id) ------------------ */
+Table Categoria {
+  id        int     [pk]
+  nome      varchar
+  parent_id int     [ref: > Categoria.id] 
+}
+
+/* ------------------ Tabela Usuario (Entidade principal) ------------------ */
+Table Usuario {
+  id      int    [pk]
+  nome    varchar
+  email   varchar
+}
+
+/* ------------------ Tabela Endereco (1:1 – cada usuário tem um endereço) ------------------ */
+Table Endereco {
+  usuario_id  int    [pk, ref: > Usuario.id]
+  logradouro  varchar
+  numero      varchar
+  cidade      varchar
+}
+
+/* ------------------ Tabela Telefone_Usuario (Atributo multi‑valor: um usuário pode ter vários telefones) ------------------ */
+Table Telefone_Usuario {
+  usuario_id int    [ref: > Usuario.id]
+  telefone  varchar
+  indexes {
+    (usuario_id, telefone) [pk]
+  }
+}
+
+/* ------------------ Tabela Emprestimo (Relação entre Usuario e Exemplar com atributos próprios) ------------------ */
+Table Emprestimo {
+  id                     int      [pk]
+  usuario_id             int      [ref: > Usuario.id]
+  exemplar_id            varchar  [ref: > Exemplar.codigo_tombamento]
+  data_emprestimo        date    
+  data_devolucao_prevista date     
+  data_devolucao_efetiva  date    
+  status                 varchar 
+  numero_renovacoes      int      
+  observacoes            text    
+}
+
+/* ------------------ Tabela PalavraChave (Entidade para atributo multi‑valor de Livro) ------------------ */
+Table PalavraChave {
+  id       int     [pk]
+  palavra  varchar
+}
+
+/* ------------------ Tabela Livro_PalavraChave (Relacionamento M:N entre Livro e PalavraChave) ------------------ */
+Table Livro_PalavraChave {
+  isbn       varchar   [ref: > Livro.isbn]
+  palavra_id int       [ref: > PalavraChave.id]
+  indexes {
+    (isbn, palavra_id) [pk]
+  }
+}
