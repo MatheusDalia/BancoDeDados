@@ -2,9 +2,17 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { MigrationService } from './infrastructure/database/migration.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Run migrations
+  const migrationService = app.get(MigrationService);
+  await migrationService.runMigrations().catch((error) => {
+    console.error('Migration failed:', error);
+    // Continue application startup even if migrations fail
+  });
 
   // Enable validation pipes
   app.useGlobalPipes(

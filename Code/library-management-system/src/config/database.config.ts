@@ -7,7 +7,7 @@ import * as path from 'path';
  * Database configuration schema validation using Zod
  */
 export const databaseConfigSchema = z.object({
-  DB_FILE: z.string().default('./data/library.sqlite'),
+  DB_FILE: z.string().default('library.sqlite'),
   DB_IN_MEMORY: z.coerce.boolean().default(false),
 });
 

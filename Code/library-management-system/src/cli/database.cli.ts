@@ -24,7 +24,7 @@ async function main() {
   }
 
   try {
-    const dbFile = process.env.DB_FILE || './data/library.sqlite';
+    const dbFile = process.env.DB_FILE || 'library.sqlite';
     const dbPath = path.isAbsolute(dbFile)
       ? dbFile
       : path.join(process.cwd(), dbFile);
