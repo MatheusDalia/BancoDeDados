@@ -1,9 +1,8 @@
-# Use Node.js 20 for better compatibility
-FROM node:20-slim
-
+# Stage 1: Builder – use full Node 22 image for building native modules
+FROM node:22 AS builder
 WORKDIR /app
 
-# Install build dependencies and SQLite
+# Install build dependencies
 RUN apt-get update && apt-get install -y \
     python3 \
     make \
@@ -13,22 +12,44 @@ RUN apt-get update && apt-get install -y \
     libsqlite3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy package files
+# Install pnpm globally
+RUN npm install -g pnpm
+
+# Copy package and configuration files (so ENV is in effect during dependency install)
 COPY package.json ./
+COPY .prettierrc ./
+COPY tsconfig.json ./
+COPY tsconfig.build.json ./
+COPY nest-cli.json ./
 
-# Create temporary package.json with downgraded swagger version
-RUN cat package.json | sed 's/"@nestjs\/swagger": "\^11.0.6"/"@nestjs\/swagger": "\^10.0.0"/' > temp.json && \
-    mv temp.json package.json
+# Install dependencies with pnpm (force reinstall to ensure native modules are built)
+RUN pnpm install --no-frozen-lockfile --force
 
-# Install with npm with legacy-peer-deps to bypass dependency conflicts
-RUN npm install --unsafe-perm --legacy-peer-deps
+# Rebuild better-sqlite3 so it’s compiled with the correct ABI for Node 22
+RUN pnpm rebuild better-sqlite3
 
-# Copy application code
+# Copy the rest of the application source code and build the app
 COPY . .
+RUN pnpm run build
 
-# Build the application
-RUN npm run build
+# Create a startup script that runs migrations then starts the app
+RUN echo '#!/bin/sh\n\
+    echo "Running migrations..."\n\
+    node dist/cli/database.cli.js migrate\n\
+    echo "Starting application..."\n\
+    node dist/main.js' > /app/start.sh && chmod +x /app/start.sh
+
+# Stage 2: Production – use a slim image to reduce final size
+FROM node:22-slim AS runtime
+WORKDIR /app
+
+# (Optional) Install any runtime dependencies, e.g. SQLite libraries
+RUN apt-get update && apt-get install -y sqlite3 libsqlite3-dev && rm -rf /var/lib/apt/lists/*
+
+# Copy built assets and node_modules from the builder stage
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/start.sh ./start.sh
 
 EXPOSE 3000
-
-CMD ["node", "dist/main.js"]
+CMD ["/app/start.sh"]
