@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common';
+// src/contexts/loans/loans.module.ts
+import { RepositoriesModule } from 'src/infrastructure/repositories/repositories.module';
 import { LoansController } from './loans.controller';
 import { LoansService } from './loans.service';
-import { DatabaseModule } from '../../resources/database/database.module';
+import { Module } from '@nestjs/common';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [RepositoriesModule],
   controllers: [LoansController],
   providers: [LoansService],
   exports: [LoansService],

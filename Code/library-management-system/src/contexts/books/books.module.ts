@@ -1,10 +1,11 @@
+// src/contexts/books/books.module.ts
 import { Module } from '@nestjs/common';
 import { BooksController } from './books.controller';
+import { RepositoriesModule } from '../../infrastructure/repositories/repositories.module';
 import { BooksService } from './books.service';
-import { DatabaseModule } from '../../resources/database/database.module';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [RepositoriesModule],
   controllers: [BooksController],
   providers: [BooksService],
   exports: [BooksService],
