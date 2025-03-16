@@ -5,14 +5,14 @@ Table Livro {
   subtitulo       varchar
   editora         varchar
   ano_publicacao  date
-  categoria_id    int       [ref: > Categoria.id] 
+  categoria_id    int       [ref: > Categoria.id]
 }
 
 /* ------------------ Tabela Exemplar (1:N – cada livro pode ter vários exemplares) ------------------ */
 Table Exemplar {
   codigo_tombamento varchar   [pk]
   isbn              varchar   [ref: > Livro.isbn]
-  status            varchar   
+  status            varchar
   localizacao       varchar
 }
 
@@ -42,7 +42,7 @@ Table Livro_Autor {
 Table Categoria {
   id        int     [pk]
   nome      varchar
-  parent_id int     [ref: > Categoria.id] 
+  parent_id int     [ref: > Categoria.id]
 }
 
 /* ------------------ Tabela Usuario (Entidade principal) ------------------ */
@@ -74,12 +74,12 @@ Table Emprestimo {
   id                     int      [pk]
   usuario_id             int      [ref: > Usuario.id]
   exemplar_id            varchar  [ref: > Exemplar.codigo_tombamento]
-  data_emprestimo        date    
-  data_devolucao_prevista date     
-  data_devolucao_efetiva  date    
-  status                 varchar 
-  numero_renovacoes      int      
-  observacoes            text    
+  data_emprestimo        date
+  data_devolucao_prevista date
+  data_devolucao_efetiva  date
+  status                 varchar
+  numero_renovacoes      int
+  observacoes            text
 }
 
 /* ------------------ Tabela PalavraChave (Entidade para atributo multi‑valor de Livro) ------------------ */
