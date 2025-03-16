@@ -1,50 +1,34 @@
-# Stage 1: Build the application
-FROM node:23-alpine AS builder
+# Use Node.js 20 for better compatibility
+FROM node:20-slim
+
 WORKDIR /app
 
-# Install build dependencies required for better-sqlite3
-RUN apk add --no-cache python3 make g++ gcc git
+# Install build dependencies and SQLite
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    gcc \
+    sqlite3 \
+    libsqlite3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install pnpm globally
-RUN npm install -g pnpm
+# Copy package files
+COPY package.json ./
 
-# Copy package files and lockfile
-COPY package.json pnpm-lock.yaml ./
+# Create temporary package.json with downgraded swagger version
+RUN cat package.json | sed 's/"@nestjs\/swagger": "\^11.0.6"/"@nestjs\/swagger": "\^10.0.0"/' > temp.json && \
+    mv temp.json package.json
 
-# Install all dependencies using pnpm
-RUN pnpm install
+# Install with npm with legacy-peer-deps to bypass dependency conflicts
+RUN npm install --unsafe-perm --legacy-peer-deps
 
-# Copy the rest of the source code and build the application
+# Copy application code
 COPY . .
-RUN pnpm run build
 
-# Stage 2: Production image
-FROM node:23-alpine AS runner
-WORKDIR /app
-
-# Install runtime dependencies required for better-sqlite3
-RUN apk add --no-cache sqlite
-
-# Install pnpm globally in the production image
-RUN npm install -g pnpm
-
-# Copy package files and install only production dependencies
-COPY package.json pnpm-lock.yaml ./
-
-# Install production dependencies with native module rebuild
-RUN apk add --no-cache python3 make g++ gcc git && \
-    pnpm install --prod && \
-    apk del python3 make g++ gcc git
-
-# Copy the migrations directory and .env file
-COPY --from=builder /app/migrations ./migrations
-COPY --from=builder /app/dist ./dist
-COPY .env ./.env
-
-# Create the data directory for SQLite
-RUN mkdir -p ./data
+# Build the application
+RUN npm run build
 
 EXPOSE 3000
 
-# Start the application
 CMD ["node", "dist/main.js"]
