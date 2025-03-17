@@ -1,61 +1,119 @@
+% !TEX encoding = UTF-8
 \documentclass[12pt,a4paper]{article}
+
+% Core packages
 \usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 \usepackage[portuguese]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
 \usepackage{indentfirst}
-\usepackage{graphicx}
+
+% Layout and structure
+\usepackage{geometry}
 \usepackage{titling}
 \usepackage{fancyhdr}
 \usepackage{enumitem}
-\usepackage{geometry}
-\usepackage{xcolor}
-\usepackage{tcolorbox}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
 \usepackage{float}
+
+% Graphics and color
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox} % Added 'most' option to load all common libraries
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes,arrows}
+
+% Specialized environments
 \usepackage{pdflscape}
+\usepackage{adjustbox}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% References and links
 \usepackage{hyperref}
 
-% Configuração dos links no documento
-\hypersetup{
-    colorlinks=true,
-    linkcolor=ufpeblue,
-    filecolor=magenta,
-    urlcolor=cyan,
-    pdftitle={Sistema de Gerenciamento de Biblioteca Universitária},
-    pdfpagemode=FullScreen,
-}
+% Better handling of floats
+\usepackage{placeins}
 
-% Configuração da página
+% Fix for headheight warning
+\setlength{\headheight}{15pt}
+
+% Page layout configuration
 \geometry{
     a4paper,
     top=2.5cm,
     bottom=2.5cm,
     left=3cm,
     right=3cm,
-    headheight=14pt
+    headheight=15pt % Ensure consistent with setting above
 }
 
-% Configuração do cabeçalho
+% Colors and styling
+\definecolor{ufpeblue}{RGB}{0,47,108}
+\definecolor{lightgray}{RGB}{245,245,245}
+
+% Header/footer configuration
 \pagestyle{fancy}
 \fancyhf{}
-\rhead{\thepage}
-\lhead{Sistema de Biblioteca Universitária}
+\fancyhead[R]{\thepage}
+\fancyhead[L]{Sistema de Biblioteca Universitária}
 \renewcommand{\headrulewidth}{0.4pt}
-
-% Definição das cores institucionais da UFPE
-\definecolor{ufpeblue}{RGB}{0,47,108}
-
-% Configuração de espaçamento para listas
-\setlist{itemsep=0.5ex,parsep=0.5ex}
-
-% Configuração das caixas coloridas
-\tcbset{
-    colback=gray!5,
-    colframe=ufpeblue,
-    arc=0mm,
-    boxrule=0.5pt,
-    fonttitle=\bfseries
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyhead[R]{\thepage}
+  \fancyhead[L]{Sistema de Biblioteca Universitária}
+  \renewcommand{\headrulewidth}{0.4pt}
 }
 
-% Título personalizado
+% List spacing configuration
+\setlist{itemsep=0.5ex, parsep=0.5ex}
+
+% Box configuration - Fixed by using proper tcolorbox syntax
+\tcbset{
+    common/.style={
+        colback=lightgray,
+        colframe=ufpeblue,
+        arc=2mm,
+        boxrule=0.5pt,
+        fonttitle=\bfseries\sffamily,
+        top=3mm,
+        bottom=3mm,
+        left=3mm,
+        right=3mm
+    }
+}
+
+% Configure hyperref
+\hypersetup{
+    colorlinks=true,
+    linkcolor=ufpeblue,
+    filecolor=magenta,
+    urlcolor=cyan,
+    pdftitle={Sistema de Gerenciamento de Biblioteca Universitária},
+    pdfauthor={Equipe IF976},
+    pdfsubject={Banco de Dados},
+    pdfkeywords={banco de dados, biblioteca, modelagem}
+}
+
+% Custom commands
+\newcommand{\sectionbreak}{\FloatBarrier}
+
+% Fix for empty TOC page - prevent extra pages
+\let\oldtableofcontents\tableofcontents
+\renewcommand{\tableofcontents}{
+  \begin{minipage}{\textwidth}
+    \oldtableofcontents
+  \end{minipage}
+}
+
+% Custom box environments
+\newtcolorbox{conceptbox}[1][]{common, title=#1}
+\newtcolorbox{infobox}[1][]{common, colback=white, title=#1}
+
+% Title setup
 \title{
     \vspace{-1.5cm}
     \begin{center}
@@ -80,14 +138,18 @@
 
 \begin{document}
 
+% Title page
+\thispagestyle{empty}
 \maketitle
-\thispagestyle{empty}
+\clearpage
 
-\newpage
+% TOC page - prevent empty page after TOC
 \tableofcontents
-\thispagestyle{empty}
-\newpage
+\clearpage
 
+%----------------------------------------------------------------------------------------
+% INTRODUCTION
+%----------------------------------------------------------------------------------------
 \section{Introdução}
 Este documento apresenta o projeto de banco de dados para um Sistema de Gerenciamento de Biblioteca Universitária, desenvolvido como parte da disciplina IF976 - Banco de Dados. O projeto está estruturado em quatro entregas principais:
 
@@ -98,500 +160,430 @@ Este documento apresenta o projeto de banco de dados para um Sistema de Gerencia
     \item \textbf{Lista de operações e consultas} (18/12/2024)
 \end{enumerate}
 
-Este documento contempla as duas primeiras entregas do projeto, apresentando tanto a descrição detalhada do minimundo quanto o esquema conceitual do banco de dados.
+Este documento contempla todas as entregas do projeto, apresentando desde a descrição detalhada do minimundo até as operações e consultas que podem ser realizadas sobre o banco de dados implementado.
 
-
-
+%----------------------------------------------------------------------------------------
+% CONTEXT
+%----------------------------------------------------------------------------------------
 \section{Contextualização}
-Este documento apresenta a primeira etapa do projeto da disciplina IF976 - Banco de Dados, que consiste no desenvolvimento de um sistema de gerenciamento para biblioteca universitária. O sistema proposto visa atender às necessidades específicas do ambiente acadêmico, facilitando o controle e a gestão do acervo bibliográfico.
 
+\begin{conceptbox}[Visão Geral do Projeto]
+Este projeto implementa um sistema de gerenciamento para biblioteca universitária, visando atender às necessidades específicas do ambiente acadêmico. O sistema proposto facilita a gestão do acervo bibliográfico, controle de empréstimos, e administração de usuários através de um banco de dados relacional bem estruturado.
+\end{conceptbox}
 
-
-\section{Descrição do Minimundo}
-
-\subsection{Visão Geral}
-\begin{tcolorbox}[title=Objetivo do Sistema]
-O sistema tem como finalidade gerenciar de forma eficiente todos os aspectos operacionais de uma biblioteca universitária, desde o cadastro e controle do acervo até o gerenciamento de empréstimos e usuários.
-\end{tcolorbox}
-
-\subsection{Contexto}
-A biblioteca universitária necessita de um sistema informatizado para automatizar seus processos internos e melhorar a qualidade dos serviços oferecidos à comunidade acadêmica. O sistema deve contemplar:
+O sistema visa resolver diversos problemas comuns em bibliotecas universitárias:
 
 \begin{itemize}
-    \item Gerenciamento completo do acervo bibliográfico
-    \item Controle eficiente de empréstimos e devoluções
-    \item Gestão de usuários (alunos, professores e funcionários)
-    \item Sistema de multas e penalidades
-    \item Geração de relatórios gerenciais e estatísticos
-    \item Controle de acesso e segurança
+    \item Dificuldade no controle manual do acervo e empréstimos
+    \item Ineficiência no processo de busca e localização de obras
+    \item Falta de dados analíticos para tomada de decisão
+    \item Inconsistências no controle de prazos e devoluções
+    \item Necessidade de mecanismos eficientes para categorização de obras
 \end{itemize}
 
+%----------------------------------------------------------------------------------------
+% DOMAIN DESCRIPTION
+%----------------------------------------------------------------------------------------
+\section{Descrição do Minimundo}
 
+\subsection{Objetivo do Sistema}
+O sistema tem como finalidade gerenciar de forma eficiente todos os aspectos operacionais de uma biblioteca universitária, desde o cadastro e controle do acervo até o gerenciamento de empréstimos e usuários.
 
+\subsection{Escopo Funcional}
+A biblioteca universitária necessita de um sistema informatizado para automatizar seus processos internos e melhorar a qualidade dos serviços oferecidos à comunidade acadêmica. O sistema deve contemplar:
+
+\begin{infobox}[Componentes do Sistema]
+\begin{itemize}
+    \item \textbf{Gerenciamento do Acervo:} Catalogação, classificação e controle dos materiais bibliográficos
+    \item \textbf{Controle de Circulação:} Gestão de empréstimos, devoluções e reservas
+    \item \textbf{Cadastro de Usuários:} Registro e manutenção de informações sobre os utilizadores da biblioteca
+    \item \textbf{Relatórios e Estatísticas:} Geração de informações gerenciais para tomada de decisão
+\end{itemize}
+\end{infobox}
+
+%----------------------------------------------------------------------------------------
+% MAIN STRUCTURES
+%----------------------------------------------------------------------------------------
 \section{Estruturas Principais}
 
 \subsection{Entidades e Seus Atributos}
 
-\begin{tcolorbox}[title=Livro]
+\begin{conceptbox}[Livro]
 \begin{itemize}[leftmargin=*]
-    \item \textbf{Identificação}:
+    \item \textbf{Identificação:}
     \begin{itemize}
-        \item ISBN (chave primária)
-        \item Código de tombamento
-        \item Código de barras
+        \item ISBN (chave primária) - identificador único internacional
+        \item Título - nome principal da obra
+        \item Subtítulo (opcional) - complemento do título principal
     \end{itemize}
-    \item \textbf{Informações Básicas}:
+    \item \textbf{Informações Bibliográficas:}
     \begin{itemize}
-        \item Título
-        \item Subtítulo
-        \item Autor(es)
-        \item Editora
-        \item Edição
-        \item Ano de publicação
+        \item Editora - empresa responsável pela publicação
+        \item Ano de publicação - data oficial de lançamento da obra
+        \item Categoria - classificação temática do livro
     \end{itemize}
-    \item \textbf{Categorização}:
+    \item \textbf{Informações Complementares:}
     \begin{itemize}
-        \item Área de conhecimento
-        \item Palavras-chave
-        \item Classificação (ex: livro, periódico, tese)
-    \end{itemize}
-    \item \textbf{Localização}:
-    \begin{itemize}
-        \item Seção
-        \item Prateleira
-        \item Posição
-    \end{itemize}
-    \item \textbf{Controle}:
-    \begin{itemize}
-        \item Quantidade de exemplares
-        \item Status de conservação
-        \item Data de aquisição
+        \item Resumo - breve descrição do conteúdo
+        \item Número de páginas - quantidade total de páginas
+        \item Autor(es) - responsáveis pela criação da obra
+        \item Palavras-chave - termos para indexação e busca
     \end{itemize}
 \end{itemize}
-\end{tcolorbox}
+\end{conceptbox}
 
-\begin{tcolorbox}[title=Usuário]
+\begin{conceptbox}[Exemplar]
 \begin{itemize}[leftmargin=*]
-    \item \textbf{Dados Pessoais}:
+    \item \textbf{Identificação:}
     \begin{itemize}
-        \item ID (chave primária)
-        \item Nome completo
-        \item CPF
-        \item RG
-        \item Data de nascimento
-        \item Endereço completo
-        \item Telefone(s)
-        \item Email
+        \item Código de tombamento (chave primária) - identificador único da cópia física
+        \item ISBN do livro (chave estrangeira) - referência à obra bibliográfica
     \end{itemize}
-    \item \textbf{Dados Acadêmicos}:
+    \item \textbf{Status e Localização:}
     \begin{itemize}
-        \item Tipo de vínculo (aluno, professor, funcionário)
-        \item Curso/Departamento
-        \item Número de matrícula/SIAPE
-        \item Data de início do vínculo
-    \end{itemize}
-    \item \textbf{Dados do Sistema}:
-    \begin{itemize}
-        \item Login
-        \item Senha
-        \item Status da conta
-        \item Histórico de empréstimos
-        \item Situação de multas
+        \item Status - condição atual do exemplar (disponível, emprestado, em manutenção)
+        \item Localização - posicionamento físico na biblioteca (estante, prateleira, seção)
     \end{itemize}
 \end{itemize}
-\end{tcolorbox}
+\end{conceptbox}
 
-\begin{tcolorbox}[title=Empréstimo]
+\begin{conceptbox}[Usuário]
 \begin{itemize}[leftmargin=*]
-    \item \textbf{Identificação}:
+    \item \textbf{Dados Pessoais:}
     \begin{itemize}
-        \item Número do empréstimo (chave primária)
-        \item ID do usuário (chave estrangeira)
-        \item ISBN do livro (chave estrangeira)
+        \item ID (chave primária) - identificador único no sistema
+        \item Nome - nome completo do usuário
+        \item Email (único) - endereço eletrônico para contato
     \end{itemize}
-    \item \textbf{Datas}:
+    \item \textbf{Informações de Contato:}
     \begin{itemize}
-        \item Data do empréstimo
-        \item Data prevista para devolução
-        \item Data efetiva de devolução
-    \end{itemize}
-    \item \textbf{Controle}:
-    \begin{itemize}
-        \item Status do empréstimo
-        \item Número de renovações
-        \item Funcionário responsável
-        \item Observações
+        \item Endereço - logradouro, número e cidade do usuário
+        \item Telefone(s) - números de contato (múltiplos possíveis)
     \end{itemize}
 \end{itemize}
-\end{tcolorbox}
+\end{conceptbox}
 
+\begin{conceptbox}[Empréstimo]
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Identificação:}
+    \begin{itemize}
+        \item ID (chave primária) - identificador único da operação
+        \item Usuário (chave estrangeira) - responsável pelo empréstimo
+        \item Exemplar (chave estrangeira) - item emprestado
+    \end{itemize}
+    \item \textbf{Controle Temporal:}
+    \begin{itemize}
+        \item Data do empréstimo - momento da retirada do item
+        \item Data prevista de devolução - prazo final para retorno
+        \item Data efetiva de devolução (opcional) - registro da entrega
+    \end{itemize}
+    \item \textbf{Metadados:}
+    \begin{itemize}
+        \item Status - situação atual (ativo, concluído)
+        \item Número de renovações - quantidade de extensões de prazo
+        \item Observações (opcional) - informações adicionais
+    \end{itemize}
+\end{itemize}
+\end{conceptbox}
 
+\begin{conceptbox}[Categoria]
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Identificação:}
+    \begin{itemize}
+        \item ID (chave primária) - identificador único
+        \item Nome - designação da categoria temática
+    \end{itemize}
+    \item \textbf{Hierarquia:}
+    \begin{itemize}
+        \item Categoria pai (auto-referência, opcional) - categoria superior na taxonomia
+    \end{itemize}
+\end{itemize}
+\end{conceptbox}
 
+% Additional entities in a more compact format
+\begin{conceptbox}[Entidades Complementares]
+\begin{tabularx}{\textwidth}{>{\bfseries}lX}
+    Autor & Entidade que armazena informações sobre os criadores das obras, com ID (chave primária) e Nome. \\[1ex]
+    
+    Palavra-Chave & Entidade que registra termos de indexação, com ID (chave primária) e Palavra. \\[1ex]
+    
+    Livro\_Detalhe & Entidade fraca que contém informações complementares sobre um livro, identificada pelo ISBN (chave estrangeira), com atributos Resumo e Número de Páginas. \\[1ex]
+    
+    Endereco & Entidade fraca associada a um usuário, identificada pelo ID do usuário (chave estrangeira), contendo Logradouro, Número e Cidade.
+\end{tabularx}
+\end{conceptbox}
+
+%----------------------------------------------------------------------------------------
+% BUSINESS RULES
+%----------------------------------------------------------------------------------------
 \section{Regras de Negócio}
 
-\begin{enumerate}[label=\textbf{RN\arabic*.}, leftmargin=*]
-    \item \textbf{Empréstimos}
-    \begin{itemize}
-        \item Professores podem emprestar até 7 livros por 30 dias
-        \item Alunos podem emprestar até 5 livros por 15 dias
-        \item Funcionários podem emprestar até 3 livros por 15 dias
-        \item Renovações são permitidas até 2 vezes, se não houver reserva
-        \item Um exemplar só pode ser emprestado se não estiver reservado
-    \end{itemize}
-
-    \item \textbf{Multas e Penalidades}
-    \begin{itemize}
-        \item Multa diária por atraso de R\$ 1,00 por livro
-        \item Bloqueio de novos empréstimos para usuários com multas pendentes
-        \item Após 30 dias de atraso, suspensão do direito de empréstimo por 60 dias
-        \item Sistema deve enviar notificações automáticas de atraso
-    \end{itemize}
-
-    \item \textbf{Reservas}
-    \begin{itemize}
-        \item Limite de 3 reservas simultâneas por usuário
-        \item Reserva válida por 24 horas após a devolução do livro
-        \item Ordem de prioridade por data de solicitação
-    \end{itemize}
-
-    \item \textbf{Cadastro e Manutenção}
-    \begin{itemize}
-        \item Todos os livros devem ter ISBN válido
-        \item Usuários devem manter dados cadastrais atualizados
-        \item Baixa de livros só pode ser feita por bibliotecários
-        \item Inventário anual obrigatório
-    \end{itemize}
+\begin{conceptbox}[Regras de Empréstimo]
+\begin{enumerate}[label=\textbf{RE\arabic*.}]
+    \item Um exemplar só pode ser emprestado se estiver com status "DISPONÍVEL"
+    \item Cada usuário pode ter no máximo 5 empréstimos ativos simultaneamente
+    \item A duração padrão de um empréstimo é de 15 dias
+    \item Renovações são permitidas até 3 vezes por empréstimo desde que não haja reserva pendente
 \end{enumerate}
+\end{conceptbox}
 
+\begin{conceptbox}[Regras de Catalogação]
+\begin{enumerate}[label=\textbf{RC\arabic*.}]
+    \item As categorias podem ser organizadas hierarquicamente através de auto-relacionamento
+    \item Um livro deve pertencer a exatamente uma categoria
+    \item Cada exemplar deve estar associado a um livro existente no acervo
+    \item O código de tombamento deve ser único para cada exemplar físico
+\end{enumerate}
+\end{conceptbox}
 
+\begin{conceptbox}[Regras de Usuários]
+\begin{enumerate}[label=\textbf{RU\arabic*.}]
+    \item O email do usuário deve ser único no sistema
+    \item Cada usuário pode ter múltiplos telefones de contato
+    \item Um usuário não pode realizar novos empréstimos se possuir empréstimos em atraso
+    \item Usuários com multas pendentes ficam bloqueados para novos empréstimos
+\end{enumerate}
+\end{conceptbox}
 
+%----------------------------------------------------------------------------------------
+% SYSTEM OPERATIONS
+%----------------------------------------------------------------------------------------
 \section{Operações do Sistema}
 
-\begin{tcolorbox}[title=Operações Principais]
-\begin{enumerate}[label=\textbf{OP\arabic*.}]
-    \item \textbf{Gestão de Acervo}
+\subsection{Gestão de Acervo}
+
+\begin{conceptbox}[Operações de Catalogação e Controle]
+\begin{itemize}
+    \item \textbf{Cadastro de Categorias}
     \begin{itemize}
-        \item Cadastro de novos livros
-        \item Atualização de informações bibliográficas
-        \item Controle de exemplares
-        \item Baixa de material
-        \item Inventário
+        \item Criação de categorias principais e subcategorias
+        \item Manutenção da estrutura hierárquica de classificação
     \end{itemize}
 
-    \item \textbf{Controle de Empréstimos}
+    \item \textbf{Registro de Livros}
     \begin{itemize}
-        \item Registro de empréstimos
-        \item Renovações
-        \item Devoluções
-        \item Reservas
-        \item Controle de atrasos
+        \item Cadastro de informações bibliográficas (ISBN, título, editora)
+        \item Associação com categorias, autores e palavras-chave
+        \item Inclusão de detalhes complementares (resumo, páginas)
     \end{itemize}
 
-    \item \textbf{Gestão de Usuários}
+    \item \textbf{Gestão de Exemplares}
     \begin{itemize}
-        \item Cadastro de novos usuários
+        \item Registro de cópias físicas com código de tombamento único
+        \item Atualização de status (disponível, emprestado, em manutenção)
+        \item Controle de localização física na biblioteca
+    \end{itemize}
+
+    \item \textbf{Busca e Recuperação}
+    \begin{itemize}
+        \item Consulta por diferentes critérios (título, autor, categoria)
+        \item Verificação de disponibilidade de exemplares
+        \item Localização física de itens no acervo
+    \end{itemize}
+\end{itemize}
+\end{conceptbox}
+
+\subsection{Gestão de Usuários}
+
+\begin{conceptbox}[Operações de Cadastro e Manutenção]
+\begin{itemize}
+    \item \textbf{Cadastro de Usuários}
+    \begin{itemize}
+        \item Registro de informações pessoais básicas
+        \item Validação de unicidade de email
+        \item Atribuição de identificador único
+    \end{itemize}
+
+    \item \textbf{Gestão de Informações Complementares}
+    \begin{itemize}
+        \item Registro de endereço completo
+        \item Cadastro de múltiplos telefones de contato
         \item Atualização de dados cadastrais
-        \item Controle de situação (ativo/inativo)
-        \item Histórico de empréstimos
-        \item Gestão de multas
     \end{itemize}
 
-    \item \textbf{Relatórios e Estatísticas}
+    \item \textbf{Consulta e Recuperação}
     \begin{itemize}
-        \item Relatórios de movimentação
-        \item Estatísticas de uso
-        \item Relatórios de multas
-        \item Histórico de operações
-        \item Indicadores de desempenho
+        \item Busca por diferentes critérios (ID, nome, email)
+        \item Visualização de histórico de empréstimos
+        \item Verificação de situação atual (atrasos, multas)
     \end{itemize}
+\end{itemize}
+\end{conceptbox}
 
-    \item \textbf{Administração do Sistema}
+\subsection{Gestão de Empréstimos}
+
+\begin{conceptbox}[Operações de Circulação]
+\begin{itemize}
+    \item \textbf{Realização de Empréstimos}
     \begin{itemize}
-        \item Controle de acesso
-        \item Backup de dados
-        \item Configurações do sistema
-        \item Logs de operações
-        \item Manutenção do sistema
+        \item Verificação de elegibilidade do usuário
+        \item Confirmação de disponibilidade do exemplar
+        \item Registro da operação com prazo de devolução
+        \item Atualização automática do status do exemplar
     \end{itemize}
-\end{enumerate}
-\end{tcolorbox}
 
+    \item \textbf{Controle de Devoluções}
+    \begin{itemize}
+        \item Registro da data efetiva de devolução
+        \item Verificação automática de atrasos
+        \item Atualização do status do exemplar para disponível
+        \item Finalização do registro de empréstimo
+    \end{itemize}
 
+    \item \textbf{Renovações}
+    \begin{itemize}
+        \item Verificação do limite de renovações permitidas
+        \item Extensão do prazo de devolução
+        \item Incremento do contador de renovações
+        \item Validação de condições para renovação (ausência de reservas)
+    \end{itemize}
+\end{itemize}
+\end{conceptbox}
 
+\subsection{Relatórios e Análises}
+
+\begin{conceptbox}[Operações Analíticas]
+\begin{itemize}
+    \item \textbf{Relatórios Operacionais}
+    \begin{itemize}
+        \item Listagem de empréstimos ativos
+        \item Identificação de atrasos na devolução
+        \item Disponibilidade atual do acervo
+        \item Histórico de empréstimos por usuário
+    \end{itemize}
+
+    \item \textbf{Análises Estatísticas}
+    \begin{itemize}
+        \item Frequência de empréstimos por categoria
+        \item Ranking de livros mais solicitados
+        \item Taxa de circulação do acervo
+        \item Eficiência na utilização de exemplares
+    \end{itemize}
+
+    \item \textbf{Indicadores de Desempenho}
+    \begin{itemize}
+        \item Taxa de renovações por empréstimo
+        \item Média de atraso nas devoluções
+        \item Percentual de utilização do acervo
+        \item Distribuição de empréstimos por perfil de usuário
+    \end{itemize}
+\end{itemize}
+\end{conceptbox}
+
+%----------------------------------------------------------------------------------------
+% CONCEPTUAL SCHEMA
+%----------------------------------------------------------------------------------------
 \section{Esquema Conceitual}
 
-\subsection{Desenvolvimento do Modelo ER}
-O esquema conceitual foi desenvolvido seguindo as etapas de modelagem Entidade-Relacionamento, identificando os principais componentes do sistema e suas interações. O processo incluiu:
+\subsection{Metodologia de Modelagem}
+O esquema conceitual foi desenvolvido seguindo a abordagem Entidade-Relacionamento (ER), que permite representar as entidades do domínio, seus atributos e os relacionamentos entre elas. O processo de modelagem incluiu as seguintes etapas:
 
 \begin{enumerate}
-    \item Identificação das entidades regulares e fracas
-    \item Definição dos atributos (simples, compostos e multivalorados)
-    \item Estabelecimento dos relacionamentos
-    \item Determinação das cardinalidades
-    \item Análise das especializações/generalizações necessárias
+    \item Identificação de entidades no minimundo descrito
+    \item Determinação dos atributos de cada entidade
+    \item Estabelecimento dos relacionamentos entre entidades
+    \item Definição das cardinalidades de cada relacionamento
+    \item Validação do modelo contra os requisitos do sistema
 \end{enumerate}
 
-\subsection{Entidades}
-\begin{tcolorbox}[title=Identificação das Entidades]
-\begin{itemize}
-    \item \textbf{Entidades Fortes}:
+\subsection{Entidades do Modelo}
+
+\begin{conceptbox}[Classificação das Entidades]
+\begin{description}
+    \item[Entidades Fortes:] São entidades que existem independentemente de outras entidades e possuem identificadores próprios.
     \begin{itemize}
-        \item LIVRO: representa a obra bibliográfica
-        \item USUÁRIO: representa os usuários do sistema
-        \item FUNCIONÁRIO: representa os funcionários da biblioteca
+        \item \textbf{Livro:} Representa a obra bibliográfica, identificada pelo ISBN.
+        \item \textbf{Categoria:} Classificação temática dos livros, com estrutura hierárquica.
+        \item \textbf{Autor:} Responsável pela criação das obras literárias.
+        \item \textbf{Palavra-Chave:} Termos utilizados para indexação de conteúdo.
+        \item \textbf{Usuário:} Pessoa cadastrada no sistema, com permissão para empréstimos.
     \end{itemize}
-    \item \textbf{Entidades Fracas}:
+    
+    \item[Entidades Fracas:] São entidades que dependem da existência de outras entidades para sua identificação completa.
     \begin{itemize}
-        \item EXEMPLAR: depende da existência de um LIVRO
-        \item EMPRÉSTIMO: depende de USUÁRIO e EXEMPLAR
+        \item \textbf{Exemplar:} Cópia física de um livro, identificada por código de tombamento.
+        \item \textbf{Livro\_Detalhe:} Informações complementares sobre um livro.
+        \item \textbf{Endereço:} Localização física de um usuário.
+        \item \textbf{Telefone\_Usuario:} Contatos telefônicos de um usuário.
+        \item \textbf{Empréstimo:} Registro de uma operação de circulação.
     \end{itemize}
-\end{itemize}
-\end{tcolorbox}
-
-\subsection{Atributos}
-\begin{tcolorbox}[title=Tipos de Atributos]
-
-\subsubsection{Atributos Identificadores}
-\begin{itemize}
-    \item LIVRO: ISBN (chave primária)
-    \item USUÁRIO: ID, CPF (chaves candidatas)
-    \item EXEMPLAR: Código de Tombamento + ISBN (chave parcial + chave do proprietário)
-    \item EMPRÉSTIMO: ID do empréstimo (chave artificial)
-\end{itemize}
-
-\subsubsection{Atributos Compostos}
-\begin{itemize}
-    \item Endereço (logradouro, número, complemento, bairro, cidade, estado, CEP)
-    \item Nome Completo (primeiro nome, sobrenome)
-\end{itemize}
-
-\subsubsection{Atributos Multivalorados}
-\begin{itemize}
-    \item Telefone(s)
-    \item Autor(es)
-    \item Palavras-chave
-\end{itemize}
-
-\subsubsection{Atributos Derivados}
-\begin{itemize}
-    \item Idade (derivado da data de nascimento)
-    \item Tempo de empréstimo (derivado das datas de empréstimo e devolução)
-    \item Valor da multa (derivado do tempo de atraso)
-\end{itemize}
-\end{tcolorbox}
-
-\subsection{Relacionamentos}
-\begin{tcolorbox}[title=Tipos de Relacionamentos]
-\subsubsection{Relacionamentos Binários}
-\begin{itemize}
-    \item \textbf{POSSUI} (LIVRO-EXEMPLAR)
-    \begin{itemize}
-        \item Tipo: 1:N
-        \item Participação total do lado EXEMPLAR
-        \item Atributos: nenhum
-    \end{itemize}
-
-    \item \textbf{REALIZA} (USUÁRIO-EMPRÉSTIMO)
-    \begin{itemize}
-        \item Tipo: 1:N
-        \item Participação total do lado EMPRÉSTIMO
-        \item Atributos: nenhum
-    \end{itemize}
-
-    \item \textbf{PARTICIPA} (EXEMPLAR-EMPRÉSTIMO)
-    \begin{itemize}
-        \item Tipo: 1:N
-        \item Participação total do lado EMPRÉSTIMO
-        \item Atributos: data\_empréstimo, data\_devolução\_prevista
-    \end{itemize}
-
-    \item \textbf{CADASTRA} (FUNCIONÁRIO-EMPRÉSTIMO)
-    \begin{itemize}
-        \item Tipo: 1:N
-        \item Participação total do lado EMPRÉSTIMO
-        \item Atributos: data\_cadastro
-    \end{itemize}
-\end{itemize}
-
-\subsubsection{Restrições de Participação}
-\begin{itemize}
-    \item EXEMPLAR deve pertencer a um LIVRO (participação total)
-    \item EMPRÉSTIMO deve ter um USUÁRIO e um EXEMPLAR (participação total)
-    \item EMPRÉSTIMO deve ser cadastrado por um FUNCIONÁRIO (participação total)
-\end{itemize}
-\end{tcolorbox}
-
-\subsection{Diagrama ER}
-A seguir, apresentamos o diagrama ER completo do sistema, que representa todas as entidades, relacionamentos e atributos identificados para o Sistema de Gerenciamento de Biblioteca Universitária:
-
-% Página em paisagem para o diagrama
-\begin{landscape}
-\begin{figure}[]
-    \centering
-    \includegraphics[width=0.95\linewidth]{ModeloConceitual.png}
-    \caption{Diagrama Entidade-Relacionamento do Sistema de Biblioteca}
-    \label{fig:diagrama-er}
-\end{figure}
-\end{landscape}
-
-\subsubsection{Detalhamento dos Elementos}
-\begin{tcolorbox}[title=Elementos do Diagrama]
-\begin{enumerate}
-    \item \textbf{Entidade Livro}
-    \begin{itemize}
-        \item Chave primária: ISBN
-        \item Atributos descritivos: título, subtítulo, editora, edição
-        \item Atributos de categorização: área de conhecimento, palavras-chave
-    \end{itemize}
-
-    \item \textbf{Entidade Exemplar}
-    \begin{itemize}
-        \item Identificação: código de tombamento, código de barras
-        \item Controle: status de conservação, data de aquisição
-        \item Localização: seção, prateleira, posição
-    \end{itemize}
-
-    \item \textbf{Entidade Usuário}
-    \begin{itemize}
-        \item Identificadores: ID, CPF, RG
-        \item Dados pessoais: nome completo, data de nascimento, endereço
-        \item Especialização em: Aluno, Professor e Funcionário
-    \end{itemize}
-
-    \item \textbf{Entidade Empréstimo}
-    \begin{itemize}
-        \item Controle temporal:
-        \begin{itemize}
-            \item Data do empréstimo
-            \item Data prevista para devolução
-            \item Data efetiva de devolução
-        \end{itemize}
-        \item Gestão:
-        \begin{itemize}
-            \item Status do empréstimo
-            \item Número de renovações
-            \item Observações
-        \end{itemize}
-        \item Rastreamento:
-        \begin{itemize}
-            \item Funcionário responsável
-            \item ID do empréstimo
-        \end{itemize}
-    \end{itemize}
-\end{enumerate}
-\end{tcolorbox}
+\end{description}
+\end{conceptbox}
 
 \subsection{Relacionamentos Principais}
 
-\begin{tcolorbox}[title=Relacionamentos do Sistema]
-\begin{enumerate}[label=\textbf{R\arabic*.}]
-    \item \textbf{Livro-Exemplar (Possui)}
-    \begin{itemize}
-        \item Cardinalidade: 1:N
-        \item Um livro pode ter vários exemplares
-        \item Cada exemplar pertence a exatamente um livro
-    \end{itemize}
+\begin{infobox}
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{>{\bfseries}lXcc}
+\toprule
+\textbf{Relacionamento} & \textbf{Descrição} & \textbf{Tipo} & \textbf{Participação} \\
+\midrule
+POSSUI & Relação entre Livro e seus Exemplares físicos & 1:N & Total (Exemplar) \\
+\addlinespace
+PERTENCE & Associação de um Livro a uma Categoria & N:1 & Total (Livro) \\
+\addlinespace
+ESCRITO\_POR & Autoria de uma obra por um ou mais Autores & N:M & Parcial \\
+\addlinespace
+INDEXADO\_POR & Associação de Livros com Palavras-chave & N:M & Parcial \\
+\addlinespace
+REALIZA & Vinculação de um Usuário a seus Empréstimos & 1:N & Total (Empréstimo) \\
+\addlinespace
+EMPRESTADO & Associação entre Exemplar e Empréstimo & 1:N & Total (Empréstimo) \\
+\addlinespace
+TEM\_DETALHES & Ligação de um Livro com suas informações complementares & 1:1 & Parcial \\
+\addlinespace
+TEM\_ENDEREÇO & Associação de um Usuário com seu endereço & 1:1 & Parcial \\
+\addlinespace
+TEM\_TELEFONE & Registro dos telefones de contato de um Usuário & 1:N & Parcial \\
+\addlinespace
+SUBCATEGORIA & Hierarquia entre Categorias (auto-relacionamento) & 1:N & Parcial \\
+\bottomrule
+\end{tabularx}
+\caption{Principais relacionamentos do modelo conceitual}
+\label{tab:relacionamentos}
+\end{table}
+\end{infobox}
 
-    \item \textbf{Exemplar-Empréstimo (Participa)}
-    \begin{itemize}
-        \item Cardinalidade: 1:N
-        \item Um exemplar pode participar de vários empréstimos (em momentos diferentes)
-        \item Cada empréstimo está associado a exatamente um exemplar
-    \end{itemize}
+\subsection{Diagrama ER}
 
-    \item \textbf{Usuário-Empréstimo (Realiza)}
-    \begin{itemize}
-        \item Cardinalidade: 1:N
-        \item Um usuário pode realizar vários empréstimos
-        \item Cada empréstimo está associado a exatamente um usuário
-    \end{itemize}
+O diagrama Entidade-Relacionamento (Figura \ref{fig:diagrama-er}) representa graficamente as entidades, seus atributos e os relacionamentos definidos no modelo conceitual. A notação utilizada segue o padrão Peter Chen, com retângulos representando entidades, elipses representando atributos, e losangos representando relacionamentos.
 
-    \item \textbf{Funcionário-Empréstimo (Cadastrado\_por)}
-    \begin{itemize}
-        \item Cardinalidade: 1:N
-        \item Um funcionário pode cadastrar vários empréstimos
-        \item Cada empréstimo é cadastrado por exatamente um funcionário
-    \end{itemize}
-\end{enumerate}
-\end{tcolorbox}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{ModeloConceitual.png}
+    \caption{Diagrama Entidade-Relacionamento do Sistema de Biblioteca Universitária}
+    \label{fig:diagrama-er}
+\end{figure}
 
-\subsection{Especializações/Generalizações}
-\begin{tcolorbox}[title=Hierarquia de Especialização]
-
-\subsubsection{Especialização de USUÁRIO}
-\begin{itemize}
-    \item Tipo: Disjunta (d)
-    \item Completude: Total
-    \item Critério: Tipo de vínculo com a instituição
-    \item Subclasses:
-    \begin{itemize}
-        \item ALUNO
-        \begin{itemize}
-            \item Atributos específicos: número\_matrícula, curso
-        \end{itemize}
-        \item PROFESSOR
-        \begin{itemize}
-            \item Atributos específicos: SIAPE, departamento
-        \end{itemize}
-        \item FUNCIONÁRIO
-        \begin{itemize}
-            \item Atributos específicos: SIAPE, setor
-        \end{itemize}
-    \end{itemize}
-\end{itemize}
-
-\subsubsection{Justificativa da Especialização}
-A especialização foi escolhida porque:
-\begin{itemize}
-    \item Cada tipo de usuário tem atributos específicos
-    \item As regras de empréstimo variam por tipo
-    \item Um usuário não pode pertencer a múltiplas categorias
-    \item Todo usuário deve ser classificado em uma categoria
-\end{itemize}
-
-\begin{itemize}
-    \item \textbf{Aluno}
-    \begin{itemize}
-        \item Atributos específicos: número de matrícula, curso
-        \item Limite de empréstimo: 5 livros
-        \item Prazo de empréstimo: 15 dias
-    \end{itemize}
-
-    \item \textbf{Professor}
-    \begin{itemize}
-        \item Atributos específicos: SIAPE, departamento
-        \item Limite de empréstimo: 7 livros
-        \item Prazo de empréstimo: 30 dias
-    \end{itemize}
-
-    \item \textbf{Funcionário}
-    \begin{itemize}
-        \item Atributos específicos: SIAPE, departamento
-        \item Limite de empréstimo: 3 livros
-        \item Prazo de empréstimo: 15 dias
-    \end{itemize}
-\end{itemize}
-\end{tcolorbox}
-
-
-
-
+%----------------------------------------------------------------------------------------
+% RELATIONAL SCHEMA
+%----------------------------------------------------------------------------------------
 \section{Esquema Relacional}
 
 \subsection{Processo de Mapeamento}
-O esquema relacional foi desenvolvido a partir do modelo conceitual (ER) seguindo as regras de mapeamento estabelecidas na literatura. O processo incluiu:
 
+O esquema relacional foi derivado a partir do modelo ER, aplicando um conjunto sistemático de regras de transformação:
+
+\begin{conceptbox}[Estratégias de Mapeamento]
 \begin{enumerate}
-    \item Mapeamento de entidades regulares
-    \item Mapeamento de entidades fracas
-    \item Mapeamento de relacionamentos
-    \item Tratamento de especializações
-    \item Mapeamento de atributos multivalorados
-    \item Mapeamento de atributos compostos
+    \item \textbf{Mapeamento de Entidades Regulares:} Cada entidade se torna uma tabela com seus atributos, onde o identificador se torna a chave primária.
+    
+    \item \textbf{Mapeamento de Entidades Fracas:} Transformadas em tabelas cujas chaves primárias incorporam a chave primária da entidade forte relacionada.
+    
+    \item \textbf{Mapeamento de Relacionamentos 1:1:} Implementados através de chaves estrangeiras, geralmente na relação correspondente à entidade com participação total.
+    
+    \item \textbf{Mapeamento de Relacionamentos 1:N:} Implementados através de chaves estrangeiras na tabela correspondente ao lado "muitos" do relacionamento.
+    
+    \item \textbf{Mapeamento de Relacionamentos N:M:} Implementados através de tabelas de junção que contêm as chaves primárias das entidades participantes.
+    
+    \item \textbf{Mapeamento de Atributos Multivalorados:} Transformados em tabelas separadas com chaves estrangeiras referenciando a entidade principal.
+    
+    \item \textbf{Mapeamento de Auto-relacionamentos:} Implementados através de chaves estrangeiras que referenciam a própria tabela.
 \end{enumerate}
+\end{conceptbox}
 
-\subsection{Diagrama do Banco de Dados}
-A Figura \ref{fig:modelo-relacional} apresenta o diagrama do esquema relacional completo, ilustrando todas as tabelas, seus relacionamentos e as chaves primárias e estrangeiras do sistema.
+\subsection{Modelo Relacional}
 
 \begin{figure}[H]
     \centering
@@ -602,538 +594,227 @@ A Figura \ref{fig:modelo-relacional} apresenta o diagrama do esquema relacional 
 
 \subsection{Relações Resultantes}
 
-\begin{tcolorbox}[title=Entidades Principais]
-\begin{itemize}
-    \item \textbf{LIVRO} (\underline{isbn}, titulo, subtitulo, editora, edicao, ano\_publicacao, area\_conhecimento, data\_cadastro)
-
-    \item \textbf{EXEMPLAR} (\underline{codigo\_tombamento}, isbn[\textit{FK}], codigo\_barras, status\_conservacao, data\_aquisicao, secao, prateleira, posicao)
-
-    \item \textbf{USUARIO} (\underline{id}, tipo\_usuario, nome, cpf, rg, data\_nascimento, email, login, senha, status\_conta)
-\end{itemize}
-\end{tcolorbox}
-
-\begin{tcolorbox}[title=Especializações]
-\begin{itemize}
-    \item \textbf{ALUNO} (\underline{id}[\textit{FK}], numero\_matricula, curso)
-
-    \item \textbf{PROFESSOR} (\underline{id}[\textit{FK}], siape, departamento)
-
-    \item \textbf{FUNCIONARIO} (\underline{id}[\textit{FK}], siape, setor)
-\end{itemize}
-\end{tcolorbox}
-
-\begin{tcolorbox}[title=Relacionamentos]
-\begin{itemize}
-    \item \textbf{EMPRESTIMO} (\underline{id}, usuario\_id[\textit{FK}], exemplar\_codigo[\textit{FK}], funcionario\_id[\textit{FK}], data\_emprestimo, data\_devolucao\_prevista, data\_devolucao\_efetiva, status, numero\_renovacoes, observacoes)
-
-    \item \textbf{RESERVA} (\underline{id}, usuario\_id[\textit{FK}], exemplar\_codigo[\textit{FK}], data\_reserva, data\_validade, status)
-
-    \item \textbf{MULTA} (\underline{id}, emprestimo\_id[\textit{FK}], valor, status, data\_geracao, data\_pagamento)
-\end{itemize}
-\end{tcolorbox}
-
-\begin{tcolorbox}[title=Atributos Multivalorados]
-\begin{itemize}
-    \item \textbf{TELEFONE\_USUARIO} (\underline{usuario\_id[\textit{FK}]}, \underline{telefone})
-
-    \item \textbf{AUTOR\_LIVRO} (\underline{isbn[\textit{FK}]}, \underline{autor})
-
-    \item \textbf{PALAVRACHAVE\_LIVRO} (\underline{isbn[\textit{FK}]}, \underline{palavra\_chave})
-\end{itemize}
-\end{tcolorbox}
-
-\begin{tcolorbox}[title=Atributos Compostos]
-\begin{itemize}
-    \item \textbf{ENDERECO\_USUARIO} (\underline{usuario\_id[\textit{FK}]}, logradouro, numero, complemento, bairro, cidade, estado, cep)
-\end{itemize}
-\end{tcolorbox}
-
-\newpage
-\subsection{Implementação em PostgreSQL}
-O esquema do banco de dados foi implementado utilizando PostgreSQL, um sistema de gerenciamento de banco de dados relacional robusto e de código aberto. A seguir, apresentamos o código SQL completo para a criação do esquema, dividido em seções lógicas:
-
-\begin{tcolorbox}[title=1. Entidades Principais,size=small]
-\begin{verbatim}
--- Criação das tabelas principais
-CREATE TABLE "Livro" (
-    "isbn" VARCHAR(13) PRIMARY KEY,
-    "titulo" VARCHAR(255) NOT NULL,
-    "subtitulo" VARCHAR(255),
-    "editora" VARCHAR(100) NOT NULL,
-    "edicao" VARCHAR(50),
-    "ano_publicacao" DATE NOT NULL,
-    "area_conhecimento" VARCHAR(100) NOT NULL,
-    "data_cadastro" DATE NOT NULL DEFAULT CURRENT_DATE
-);
-
-CREATE TABLE "Exemplar" (
-    "codigo_tombamento" VARCHAR(20) PRIMARY KEY,
-    "isbn" VARCHAR(13) NOT NULL,
-    "codigo_barras" VARCHAR(50) UNIQUE,
-    "status_conservacao" VARCHAR(20) NOT NULL,
-    "data_aquisicao" DATE NOT NULL,
-    "secao" VARCHAR(50) NOT NULL,
-    "prateleira" VARCHAR(20) NOT NULL,
-    "posicao" VARCHAR(20) NOT NULL,
-    FOREIGN KEY ("isbn") REFERENCES "Livro" ("isbn")
-);
-\end{verbatim}
-\end{tcolorbox}
-
-\begin{tcolorbox}[title=2. Usuários e Especializações,size=small]
-\begin{verbatim}
-CREATE TABLE "Usuario" (
-    "id" SERIAL PRIMARY KEY,
-    "tipo_usuario" VARCHAR(20) NOT NULL,
-    "nome" VARCHAR(100) NOT NULL,
-    "cpf" VARCHAR(11) UNIQUE NOT NULL,
-    "rg" VARCHAR(20) NOT NULL,
-    "data_nascimento" DATE NOT NULL,
-    "email" VARCHAR(100) UNIQUE NOT NULL,
-    "login" VARCHAR(50) UNIQUE NOT NULL,
-    "senha" VARCHAR(255) NOT NULL,
-    "status_conta" VARCHAR(20) NOT NULL DEFAULT 'ATIVO',
-    CONSTRAINT "chk_tipo_usuario"
-        CHECK (tipo_usuario IN ('ALUNO', 'PROFESSOR', 'FUNCIONARIO'))
-);
-
-CREATE TABLE "Aluno" (
-    "id" INTEGER PRIMARY KEY REFERENCES "Usuario" ("id") ON DELETE CASCADE,
-    "numero_matricula" VARCHAR(20) UNIQUE NOT NULL,
-    "curso" VARCHAR(100) NOT NULL
-);
-
-CREATE TABLE "Professor" (
-    "id" INTEGER PRIMARY KEY REFERENCES "Usuario" ("id") ON DELETE CASCADE,
-    "siape" VARCHAR(20) UNIQUE NOT NULL,
-    "departamento" VARCHAR(100) NOT NULL
-);
-
-CREATE TABLE "Funcionario" (
-    "id" INTEGER PRIMARY KEY REFERENCES "Usuario" ("id") ON DELETE CASCADE,
-    "siape" VARCHAR(20) UNIQUE NOT NULL,
-    "setor" VARCHAR(100) NOT NULL
-);
-\end{verbatim}
-\end{tcolorbox}
-
-\begin{tcolorbox}[title=3. Empréstimos e Multas,size=small]
-\begin{verbatim}
-CREATE TABLE "Emprestimo" (
-    "id" SERIAL PRIMARY KEY,
-    "usuario_id" INTEGER NOT NULL REFERENCES "Usuario" ("id"),
-    "exemplar_codigo" VARCHAR(20) NOT NULL
-        REFERENCES "Exemplar" ("codigo_tombamento"),
-    "funcionario_id" INTEGER NOT NULL REFERENCES "Funcionario" ("id"),
-    "data_emprestimo" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "data_devolucao_prevista" DATE NOT NULL,
-    "data_devolucao_efetiva" DATE,
-    "status" VARCHAR(20) NOT NULL DEFAULT 'ATIVO',
-    "numero_renovacoes" INTEGER NOT NULL DEFAULT 0,
-    "observacoes" TEXT
-);
-
-CREATE TABLE "Multa" (
-    "id" SERIAL PRIMARY KEY,
-    "emprestimo_id" INTEGER NOT NULL REFERENCES "Emprestimo" ("id"),
-    "valor" DECIMAL(10,2) NOT NULL,
-    "status" VARCHAR(20) NOT NULL DEFAULT 'PENDENTE',
-    "data_geracao" DATE NOT NULL DEFAULT CURRENT_DATE,
-    "data_pagamento" DATE
-);
-\end{verbatim}
-\end{tcolorbox}
-
-\begin{tcolorbox}[title=4. Atributos Multivalorados e Compostos,size=small]
-\begin{verbatim}
-CREATE TABLE "Telefone_Usuario" (
-    "usuario_id" INTEGER REFERENCES "Usuario" ("id"),
-    "telefone" VARCHAR(20),
-    PRIMARY KEY ("usuario_id", "telefone")
-);
-
-CREATE TABLE "Autor_Livro" (
-    "isbn" VARCHAR(13) REFERENCES "Livro" ("isbn"),
-    "autor" VARCHAR(100),
-    PRIMARY KEY ("isbn", "autor")
-);
-
-CREATE TABLE "PalavraChave_Livro" (
-    "isbn" VARCHAR(13) REFERENCES "Livro" ("isbn"),
-    "palavra_chave" VARCHAR(50),
-    PRIMARY KEY ("isbn", "palavra_chave")
-);
-
-CREATE TABLE "Endereco_Usuario" (
-    "usuario_id" INTEGER PRIMARY KEY REFERENCES "Usuario" ("id"),
-    "logradouro" VARCHAR(100) NOT NULL,
-    "numero" VARCHAR(10) NOT NULL,
-    "complemento" VARCHAR(50),
-    "bairro" VARCHAR(50) NOT NULL,
-    "cidade" VARCHAR(50) NOT NULL,
-    "estado" CHAR(2) NOT NULL,
-    "cep" VARCHAR(8) NOT NULL
-);
-\end{verbatim}
-\end{tcolorbox}
-
-\subsection{Justificativas do Mapeamento}
-
-\subsubsection{Entidades Principais}
-\begin{itemize}
-    \item \textbf{LIVRO}: Mantida como entidade independente com ISBN como chave primária natural.
-    \item \textbf{EXEMPLAR}: Mapeada como entidade dependente do LIVRO, com código de tombamento como identificador único.
-    \item \textbf{USUARIO}: Implementada como superclasse com identificador próprio para facilitar as especializações.
-\end{itemize}
-
-\subsubsection{Especializações}
-A especialização de USUARIO foi implementada usando a abordagem de chave estrangeira para cada subclasse (Aluno, Professor, Funcionario), permitindo:
-\begin{itemize}
-    \item Manutenção da integridade referencial
-    \item Acesso eficiente aos dados específicos de cada tipo de usuário
-    \item Flexibilidade para consultas e atualizações
-\end{itemize}
+\begin{conceptbox}[Tabelas do Esquema Relacional]
+\begin{description}
+    \item[Categoria] \hfill \\
+    \textbf{(\underline{id}, nome, parent\_id)} \\
+    Onde \textit{parent\_id} é uma chave estrangeira que referencia \textit{id} na mesma tabela, implementando o auto-relacionamento hierárquico.
+    
+    \item[Livro] \hfill \\
+    \textbf{(\underline{isbn}, titulo, subtitulo, editora, ano\_publicacao, categoria\_id)} \\
+    Onde \textit{categoria\_id} é uma chave estrangeira para a tabela \textbf{Categoria}.
+    
+    \item[Livro\_Detalhe] \hfill \\
+    \textbf{(\underline{isbn}, resumo, numero\_paginas)} \\
+    Onde \textit{isbn} é chave primária e estrangeira referenciando a tabela \textbf{Livro}.
+    
+    \item[Autor] \hfill \\
+    \textbf{(\underline{id}, nome)}
+    
+    \item[Livro\_Autor] \hfill \\
+    \textbf{(\underline{isbn, autor\_id})} \\
+    Tabela de junção para o relacionamento N:M entre \textbf{Livro} e \textbf{Autor}.
+    
+    \item[PalavraChave] \hfill \\
+    \textbf{(\underline{id}, palavra)}
+    
+    \item[Livro\_PalavraChave] \hfill \\
+    \textbf{(\underline{isbn, palavra\_id})} \\
+    Tabela de junção para o relacionamento N:M entre \textbf{Livro} e \textbf{PalavraChave}.
+    
+    \item[Exemplar] \hfill \\
+    \textbf{(\underline{codigo\_tombamento}, isbn, status, localizacao)} \\
+    Onde \textit{isbn} é uma chave estrangeira para a tabela \textbf{Livro}.
+    
+    \item[Usuario] \hfill \\
+    \textbf{(\underline{id}, nome, email)}
+    
+    \item[Endereco] \hfill \\
+    \textbf{(\underline{usuario\_id}, logradouro, numero, cidade)} \\
+    Onde \textit{usuario\_id} é chave primária e estrangeira referenciando a tabela \textbf{Usuario}.
+    
+    \item[Telefone\_Usuario] \hfill \\
+    \textbf{(\underline{usuario\_id, telefone})} \\
+    Onde \textit{usuario\_id} é parte da chave primária e referencia a tabela \textbf{Usuario}.
+    
+    \item[Emprestimo] \hfill \\
+    \textbf{(\underline{id}, usuario\_id, exemplar\_id, data\_emprestimo, data\_devolucao\_prevista,} \\
+    \textbf{data\_devolucao\_efetiva, status, numero\_renovacoes, observacoes)} \\
+    Onde \textit{usuario\_id} e \textit{exemplar\_id} são chaves estrangeiras para as tabelas \textbf{Usuario} e \textbf{Exemplar}, respectivamente.
+\end{description}
+\end{conceptbox}
 
 \subsection{Restrições de Integridade}
 
-\begin{tcolorbox}[title=Principais Restrições]
-\begin{enumerate}[label=\textbf{RI\arabic*.}]
-    \item \textbf{Integridade de Entidade}
+\begin{conceptbox}[Mecanismos de Integridade]
+\begin{itemize}
+    \item \textbf{Integridade de Entidade:} Todas as chaves primárias são definidas como NOT NULL, garantindo que cada registro tenha identificação única.
+    
+    \item \textbf{Integridade Referencial:} Implementada através de FOREIGN KEY constraints entre tabelas relacionadas.
     \begin{itemize}
-        \item Chaves primárias NOT NULL e UNIQUE
-        \item CPF e Email com restrição UNIQUE
-        \item Tipos enumerados para status e categorias
+        \item ON DELETE CASCADE: Aplicado em relações onde a exclusão do registro principal deve propagar para os dependentes (ex: exclusão de usuário propaga para seu endereço).
+        \item ON DELETE RESTRICT: Impede a exclusão de registros que possuem dependentes (ex: um livro com exemplares).
     \end{itemize}
-
-    \item \textbf{Integridade Referencial}
+    
+    \item \textbf{Restrições de Domínio:} Garantem que os dados inseridos nas colunas obedeçam a certos critérios:
     \begin{itemize}
-        \item ON DELETE RESTRICT para preservar histórico
-        \item ON DELETE CASCADE para especializações
-        \item Constraints nomeadas para melhor manutenção
+        \item CHECK constraints para validar valores permitidos (ex: status de exemplar)
+        \item UNIQUE constraints para campos com unicidade obrigatória (ex: email de usuário)
+        \item DEFAULT values para campos com valores padrão (ex: data de empréstimo)
     \end{itemize}
+\end{itemize}
+\end{conceptbox}
 
-    \item \textbf{Restrições de Domínio}
-    \begin{itemize}
-        \item CHECK constraints para valores válidos
-        \item Valores DEFAULT para campos comuns
-        \item Tipos de dados adequados para cada campo
-    \end{itemize}
-\end{enumerate}
-\end{tcolorbox}
-
+%----------------------------------------------------------------------------------------
+% OPERATIONS AND QUERIES
+%----------------------------------------------------------------------------------------
 \section{Operações e Consultas}
 
-\subsection{Visão Geral}
-Esta seção apresenta as principais operações e consultas que podem ser realizadas no banco de dados, organizadas por área funcional. Para cada operação, são fornecidos os detalhes de implementação e exemplos de consultas SQL correspondentes.
+O esquema relacional suporta diversas operações e consultas essenciais para o funcionamento do sistema. A seguir, apresentamos as principais categorias de operações e exemplos das consultas mais relevantes.
 
 \subsection{Gestão do Acervo}
 
-\begin{tcolorbox}[title=Operações de Cadastro e Atualização]
+\begin{conceptbox}[Operações de Catalogação]
 \begin{enumerate}[label=\textbf{OA\arabic*.}]
-    \item \textbf{Cadastro de Novo Livro}
+    \item \textbf{Cadastro Hierárquico de Categorias}
     \begin{itemize}
-        \item Inserção de informações bibliográficas básicas.
-        \item Registro de autores.
-        \item Cadastro de palavras-chave.
-        \begin{verbatim}
-{\small
-INSERT INTO "Livro" (isbn, titulo, editora, edicao,
-    ano_publicacao, area_conhecimento)
-VALUES ('9788533302273', 'Dom Casmurro', 'Editora XYZ',
-    '1ª Edição', '2023-01-01', 'Literatura');
-
-INSERT INTO "Autor_Livro" (isbn, autor)
-VALUES ('9788533302273', 'Machado de Assis');
-}
-        \end{verbatim}
+        \item Registro de categorias principais (sem parent\_id)
+        \item Criação de subcategorias (com referência à categoria pai)
+        \item Consulta de árvore de categorias (recursivamente)
     \end{itemize}
 
-    \item \textbf{Registro de Exemplares}
+    \item \textbf{Registro Completo de Livros}
     \begin{itemize}
-        \item Vinculação ao livro existente.
-        \item Definição da localização física.
-        \item Atribuição de código de tombamento.
-        \begin{verbatim}
-{\small
-INSERT INTO "Exemplar" (codigo_tombamento, isbn,
-    codigo_barras, status_conservacao, data_aquisicao,
-    secao, prateleira, posicao)
-VALUES ('TOMB001', '9788533302273', 'BAR001', 'NOVO',
-    CURRENT_DATE, 'LIT', 'A', '01');
-}
-        \end{verbatim}
+        \item Inserção de informações bibliográficas básicas
+        \item Cadastro de detalhes complementares
+        \item Associação com autores existentes
+        \item Indexação por palavras-chave
+    \end{itemize}
+
+    \item \textbf{Gestão de Exemplares}
+    \begin{itemize}
+        \item Registro de novas cópias físicas
+        \item Atualização de status e localização
+        \item Verificação de disponibilidade
     \end{itemize}
 \end{enumerate}
-\end{tcolorbox}
+\end{conceptbox}
 
-\begin{tcolorbox}[title=Consultas do Acervo]
+\begin{conceptbox}[Consultas do Acervo]
 \begin{enumerate}[label=\textbf{CA\arabic*.}]
-    \item \textbf{Busca de Livros}
+    \item \textbf{Busca Multidimensional de Livros}
     \begin{itemize}
-        \item Por título, autor ou área.
-        \item Verificação de disponibilidade.
-        \begin{verbatim}
-{\small
-SELECT l.*, COUNT(e.codigo_tombamento) as exemplares_disponiveis
-FROM "Livro" l
-LEFT JOIN "Exemplar" e ON l.isbn = e.isbn
-LEFT JOIN "Emprestimo" emp ON e.codigo_tombamento =
-    emp.exemplar_codigo AND emp.data_devolucao_efetiva IS NULL
-WHERE l.titulo ILIKE '%pesquisa%'
-GROUP BY l.isbn;
-}
-        \end{verbatim}
+        \item Por categoria (incluindo subcategorias)
+        \item Por autor (nome completo ou parcial)
+        \item Por palavras-chave
+        \item Por disponibilidade de exemplares
     \end{itemize}
 
-    \item \textbf{Relatórios de Acervo}
+    \item \textbf{Relatórios de Composição do Acervo}
     \begin{itemize}
-        \item Estatísticas por área.
-        \item Status de conservação.
-        \begin{verbatim}
-{\small
-SELECT l.area_conhecimento,
-    COUNT(DISTINCT l.isbn) as total_titulos,
-    COUNT(e.codigo_tombamento) as total_exemplares
-FROM "Livro" l
-LEFT JOIN "Exemplar" e ON l.isbn = e.isbn
-GROUP BY l.area_conhecimento;
-}
-        \end{verbatim}
+        \item Distribuição de livros por categoria
+        \item Quantidade de exemplares por título
+        \item Estado de conservação do acervo
     \end{itemize}
 \end{enumerate}
-\end{tcolorbox}
+\end{conceptbox}
 
 \subsection{Gestão de Usuários}
 
-\begin{tcolorbox}[title=Operações de Usuários]
+\begin{conceptbox}[Operações de Usuários]
 \begin{enumerate}[label=\textbf{OU\arabic*.}]
-    \item \textbf{Cadastro de Usuários}
+    \item \textbf{Gerenciamento de Cadastros}
     \begin{itemize}
-        \item Registro de dados pessoais.
-        \item Criação de credenciais.
-        \item Definição de perfil.
-        \begin{verbatim}
-{\small
-INSERT INTO "Usuario" (nome, cpf, tipo_usuario, email,
-    login, senha, status_conta)
-VALUES ('João Silva', '12345678901', 'ALUNO',
-    'joao@email.com', 'joao.silva',
-    'senha_hash', 'ATIVO');
-
-INSERT INTO "Aluno" (id, numero_matricula, curso)
-VALUES (CURRVAL('"Usuario_id_seq"'), '20241001',
-    'Ciência da Computação');
-}
-        \end{verbatim}
+        \item Inserção de novos usuários com validação de email
+        \item Registro de endereço completo
+        \item Cadastro de múltiplos telefones
+        \item Atualização de informações pessoais
     \end{itemize}
 
-    \item \textbf{Gerenciamento de Status}
+    \item \textbf{Consultas de Usuários}
     \begin{itemize}
-        \item Ativação/desativação de contas.
-        \item Atualização de dados.
-        \begin{verbatim}
-{\small
-UPDATE "Usuario"
-SET status_conta = 'INATIVO'
-WHERE id = 1001 AND EXISTS (
-    SELECT 1 FROM "Multa" m
-    JOIN "Emprestimo" e ON m.emprestimo_id = e.id
-    WHERE e.usuario_id = 1001
-    AND m.status = 'PENDENTE'
-);
-}
-        \end{verbatim}
+        \item Busca por dados de identificação (ID, nome, email)
+        \item Recuperação de informações completas (inclui endereço e telefones)
+        \item Verificação de histórico e situação atual
     \end{itemize}
 \end{enumerate}
-\end{tcolorbox}
+\end{conceptbox}
 
-\subsection{Empréstimos e Devoluções}
+\subsection{Gestão de Empréstimos}
 
-\begin{tcolorbox}[title=Operações de Circulação]
+\begin{conceptbox}[Operações de Circulação]
 \begin{enumerate}[label=\textbf{OC\arabic*.}]
-    \item \textbf{Realização de Empréstimo}
+    \item \textbf{Controle de Empréstimos}
     \begin{itemize}
-        \item Verificação de elegibilidade.
-        \item Registro do empréstimo.
-        \item Cálculo de data de devolução.
-        \begin{verbatim}
-{\small
--- Verificar elegibilidade
-SELECT COUNT(*) as emprestimos_ativos
-FROM "Emprestimo"
-WHERE usuario_id = 1001
-AND data_devolucao_efetiva IS NULL;
-
--- Registrar empréstimo
-INSERT INTO "Emprestimo" (usuario_id, exemplar_codigo,
-    funcionario_id, data_devolucao_prevista)
-VALUES (1001, 'TOMB001', 2001,
-    CURRENT_DATE + INTERVAL '15 days');
-}
-        \end{verbatim}
+        \item Registro de novas operações com validação de regras
+        \item Verificação de empréstimos ativos por usuário
+        \item Identificação de situação (regular ou atrasado)
     \end{itemize}
 
-    \item \textbf{Processamento de Devolução}
+    \item \textbf{Gestão de Devoluções}
     \begin{itemize}
-        \item Registro de devolução.
-        \item Cálculo de multas.
-        \item Atualização de status.
-        \begin{verbatim}
-{\small
-UPDATE "Emprestimo"
-SET data_devolucao_efetiva = CURRENT_DATE,
-    status = 'CONCLUIDO'
-WHERE id = 3001;
+        \item Registro da data efetiva de retorno
+        \item Atualização de status do empréstimo e exemplar
+        \item Cálculo automático de atraso
+    \end{itemize}
 
--- Gerar multa se necessário
-INSERT INTO "Multa" (emprestimo_id, valor, status)
-SELECT id,
-    (CURRENT_DATE - data_devolucao_prevista) * 1.00,
-    'PENDENTE'
-FROM "Emprestimo"
-WHERE id = 3001
-AND CURRENT_DATE > data_devolucao_prevista;
-}
-        \end{verbatim}
+    \item \textbf{Renovações}
+    \begin{itemize}
+        \item Extensão do prazo de devolução
+        \item Incremento do contador de renovações
+        \item Verificação de limites e restrições
     \end{itemize}
 \end{enumerate}
-\end{tcolorbox}
+\end{conceptbox}
 
-\subsection{Relatórios e Consultas Analíticas}
+\subsection{Relatórios e Análises}
 
-\begin{tcolorbox}[title=Relatórios Gerenciais]
-\begin{enumerate}[label=\textbf{RG\arabic*.}]
-    \item \textbf{Estatísticas de Uso}
+\begin{conceptbox}[Consultas Analíticas]
+\begin{enumerate}[label=\textbf{RA\arabic*.}]
+    \item \textbf{Indicadores de Utilização}
     \begin{itemize}
-        \item Frequência de empréstimos.
-        \item Áreas mais procuradas.
-        \begin{verbatim}
-{\small
-SELECT l.area_conhecimento,
-    COUNT(e.id) as total_emprestimos,
-    COUNT(DISTINCT e.usuario_id) as usuarios_unicos
-FROM "Livro" l
-JOIN "Exemplar" ex ON l.isbn = ex.isbn
-JOIN "Emprestimo" e ON ex.codigo_tombamento = e.exemplar_codigo
-WHERE e.data_emprestimo >= CURRENT_DATE - INTERVAL '30 days'
-GROUP BY l.area_conhecimento
-ORDER BY total_emprestimos DESC;
-}
-        \end{verbatim}
+        \item Ranking de livros mais emprestados
+        \item Distribuição de empréstimos por categoria
+        \item Análise temporal de circulação
     \end{itemize}
 
-    \item \textbf{Relatório de Multas}
+    \item \textbf{Monitoramento de Atrasos}
     \begin{itemize}
-        \item Total de multas pendentes.
-        \item Histórico de pagamentos.
-        \begin{verbatim}
-{\small
-SELECT u.nome, COUNT(m.id) as total_multas,
-    SUM(m.valor) as valor_total,
-    MAX(m.data_geracao) as multa_mais_recente
-FROM "Usuario" u
-JOIN "Emprestimo" e ON u.id = e.usuario_id
-JOIN "Multa" m ON e.id = m.emprestimo_id
-WHERE m.status = 'PENDENTE'
-GROUP BY u.id, u.nome
-ORDER BY valor_total DESC;
-}
-        \end{verbatim}
+        \item Identificação de empréstimos com devolução em atraso
+        \item Ranking de usuários por frequência de atrasos
+        \item Tempo médio de atraso por categoria de usuário
     \end{itemize}
-\end{enumerate}
-\end{tcolorbox}
-
-\subsection{Consultas de Monitoramento}
-
-\begin{tcolorbox}[title=Monitoramento do Sistema]
-\begin{enumerate}[label=\textbf{MS\arabic*.}]
-    \item \textbf{Atrasos e Notificações}
-    \begin{itemize}
-        \item Identificação de atrasos.
-        \item Geração de alertas.
-        \begin{verbatim}
-{\small
-SELECT u.nome, u.email, l.titulo,
-    e.data_devolucao_prevista,
-    CURRENT_DATE - e.data_devolucao_prevista as dias_atraso
-FROM "Emprestimo" e
-JOIN "Usuario" u ON e.usuario_id = u.id
-JOIN "Exemplar" ex ON e.exemplar_codigo = ex.codigo_tombamento
-JOIN "Livro" l ON ex.isbn = l.isbn
-WHERE e.data_devolucao_efetiva IS NULL
-AND e.data_devolucao_prevista < CURRENT_DATE;
-}
-        \end{verbatim}
-    \end{itemize}
-
-    \item \textbf{Status de Reservas}
-    \begin{itemize}
-        \item Fila de reservas.
-        \item Disponibilidade de exemplares.
-        \begin{verbatim}
-{\small
-SELECT l.titulo, r.data_reserva,
-    u.nome as usuario,
-    ROW_NUMBER() OVER (
-        PARTITION BY r.exemplar_codigo
-        ORDER BY r.data_reserva
-    ) as posicao_fila
-FROM "Reserva" r
-JOIN "Usuario" u ON r.usuario_id = u.id
-JOIN "Exemplar" ex ON r.exemplar_codigo = ex.codigo_tombamento
-JOIN "Livro" l ON ex.isbn = l.isbn
-WHERE r.status = 'ATIVA'
-ORDER BY r.exemplar_codigo, r.data_reserva;
-}
-        \end{verbatim}
-    \end{itemize}
-\end{enumerate}
-\end{tcolorbox}
-
-\subsection{Indicadores de Desempenho}
-
-\begin{tcolorbox}[title=Métricas do Sistema]
-\begin{itemize}
-    \item \textbf{Taxa de Circulação}
-    \begin{verbatim}
-{\small
-SELECT l.isbn, l.titulo,
-    COUNT(e.id) as total_emprestimos,
-    COUNT(e.id)::float /
-        EXTRACT(MONTH FROM AGE(CURRENT_DATE, MIN(e.data_emprestimo)))
-    as media_mensal
-FROM "Livro" l
-JOIN "Exemplar" ex ON l.isbn = ex.isbn
-LEFT JOIN "Emprestimo" e ON ex.codigo_tombamento = e.exemplar_codigo
-GROUP BY l.isbn, l.titulo
-HAVING MIN(e.data_emprestimo) IS NOT NULL;
-}
-    \end{verbatim}
 
     \item \textbf{Eficiência do Acervo}
-    \begin{verbatim}
-{\small
-SELECT l.area_conhecimento,
-    COUNT(DISTINCT l.isbn) as total_titulos,
-    COUNT(DISTINCT e.id) as total_emprestimos,
-    COUNT(DISTINCT e.id)::float / COUNT(DISTINCT l.isbn)
-    as emprestimos_por_titulo
-FROM "Livro" l
-LEFT JOIN "Exemplar" ex ON l.isbn = ex.isbn
-LEFT JOIN "Emprestimo" e ON ex.codigo_tombamento = e.exemplar_codigo
-WHERE e.data_emprestimo >= CURRENT_DATE - INTERVAL '1 year'
-GROUP BY l.area_conhecimento;
-}
-    \end{verbatim}
-\end{itemize}
-\end{tcolorbox}
+    \begin{itemize}
+        \item Taxa de circulação por categoria
+        \item Relação entre quantidade de exemplares e empréstimos
+        \item Análise de autores e temas mais populares
+    \end{itemize}
+\end{enumerate}
+\end{conceptbox}
 
-
-
-
+%----------------------------------------------------------------------------------------
+% CONCLUSION
+%----------------------------------------------------------------------------------------
 \section{Conclusão}
 
-O sistema proposto visa atender todas as necessidades operacionais de uma biblioteca universitária moderna, proporcionando eficiência na gestão do acervo e melhor experiência para os usuários. A implementação seguirá as melhores práticas de desenvolvimento de banco de dados, garantindo integridade, segurança e desempenho adequado. O esquema conceitual apresentado reflete de forma precisa as entidades, relacionamentos e regras de negócio identificadas, fornecendo uma base sólida para as próximas etapas do projeto.
+O Sistema de Gerenciamento de Biblioteca Universitária aqui documentado representa uma solução robusta para as necessidades de controle e operação de bibliotecas acadêmicas. Através de um modelo de dados bem estruturado, o sistema permite:
 
+\begin{infobox}
+\begin{itemize}
+    \item \textbf{Catalogação Eficiente:} Organização hierárquica do acervo com categorização flexível e indexação por múltiplos critérios.
+    
+    \item \textbf{Circulação Controlada:} Gestão completa do ciclo de empréstimos, com monitoramento de prazos e controle de disponibilidade.
+    
+    \item \textbf{Gestão de Usuários:} Cadastro completo com informações pessoais e histórico de utilização dos serviços.
+    
+    \item \textbf{Inteligência Analítica:} Relatórios e consultas que auxiliam na tomada de decisão e otimização do acervo.
+\end{itemize}
+\end{infobox}
+
+A abordagem adotada seguiu as melhores práticas de modelagem de dados, iniciando com a análise do minimundo, passando pelo desenvolvimento do modelo conceitual (ER) e culminando no esquema relacional normalizado. O resultado é um banco de dados que equilibra eficiência operacional, integridade de dados e flexibilidade para expansões futuras.
+
+A implementação deste sistema proporcionará significativa melhoria na gestão bibliotecária, beneficiando tanto os profissionais responsáveis pela administração quanto a comunidade acadêmica que utiliza estes recursos.
 
 \end{document}
