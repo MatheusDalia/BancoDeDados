@@ -1,45 +1,30 @@
 \babel@toc {portuguese}{}\relax 
-\contentsline {section}{\numberline {1}Introdução}{4}{section.1}%
-\contentsline {section}{\numberline {2}Contextualização}{4}{section.2}%
-\contentsline {section}{\numberline {3}Descrição do Minimundo}{4}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Visão Geral}{4}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}Contexto}{4}{subsection.3.2}%
-\contentsline {section}{\numberline {4}Estruturas Principais}{5}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Entidades e Seus Atributos}{5}{subsection.4.1}%
-\contentsline {section}{\numberline {5}Regras de Negócio}{7}{section.5}%
-\contentsline {section}{\numberline {6}Operações do Sistema}{9}{section.6}%
-\contentsline {section}{\numberline {7}Esquema Conceitual}{10}{section.7}%
-\contentsline {subsection}{\numberline {7.1}Desenvolvimento do Modelo ER}{10}{subsection.7.1}%
-\contentsline {subsection}{\numberline {7.2}Entidades}{10}{subsection.7.2}%
-\contentsline {subsection}{\numberline {7.3}Atributos}{11}{subsection.7.3}%
-\contentsline {subsubsection}{\numberline {7.3.1}Atributos Identificadores}{11}{subsubsection.7.3.1}%
-\contentsline {subsubsection}{\numberline {7.3.2}Atributos Compostos}{11}{subsubsection.7.3.2}%
-\contentsline {subsubsection}{\numberline {7.3.3}Atributos Multivalorados}{11}{subsubsection.7.3.3}%
-\contentsline {subsubsection}{\numberline {7.3.4}Atributos Derivados}{11}{subsubsection.7.3.4}%
-\contentsline {subsection}{\numberline {7.4}Relacionamentos}{12}{subsection.7.4}%
-\contentsline {subsubsection}{\numberline {7.4.1}Relacionamentos Binários}{12}{subsubsection.7.4.1}%
-\contentsline {subsubsection}{\numberline {7.4.2}Restrições de Participação}{12}{subsubsection.7.4.2}%
-\contentsline {subsection}{\numberline {7.5}Diagrama ER}{12}{subsection.7.5}%
-\contentsline {subsubsection}{\numberline {7.5.1}Detalhamento dos Elementos}{14}{subsubsection.7.5.1}%
-\contentsline {subsection}{\numberline {7.6}Relacionamentos Principais}{15}{subsection.7.6}%
-\contentsline {subsection}{\numberline {7.7}Especializações/Generalizações}{16}{subsection.7.7}%
-\contentsline {subsubsection}{\numberline {7.7.1}Especialização de USUÁRIO}{16}{subsubsection.7.7.1}%
-\contentsline {subsubsection}{\numberline {7.7.2}Justificativa da Especialização}{16}{subsubsection.7.7.2}%
-\contentsline {section}{\numberline {8}Esquema Relacional}{17}{section.8}%
-\contentsline {subsection}{\numberline {8.1}Processo de Mapeamento}{17}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}Diagrama do Banco de Dados}{17}{subsection.8.2}%
-\contentsline {subsection}{\numberline {8.3}Relações Resultantes}{18}{subsection.8.3}%
-\contentsline {subsection}{\numberline {8.4}Implementação em PostgreSQL}{20}{subsection.8.4}%
-\contentsline {subsection}{\numberline {8.5}Justificativas do Mapeamento}{23}{subsection.8.5}%
-\contentsline {subsubsection}{\numberline {8.5.1}Entidades Principais}{23}{subsubsection.8.5.1}%
-\contentsline {subsubsection}{\numberline {8.5.2}Especializações}{23}{subsubsection.8.5.2}%
-\contentsline {subsection}{\numberline {8.6}Restrições de Integridade}{24}{subsection.8.6}%
-\contentsline {section}{\numberline {9}Operações e Consultas}{24}{section.9}%
-\contentsline {subsection}{\numberline {9.1}Visão Geral}{24}{subsection.9.1}%
-\contentsline {subsection}{\numberline {9.2}Gestão do Acervo}{25}{subsection.9.2}%
-\contentsline {subsection}{\numberline {9.3}Gestão de Usuários}{27}{subsection.9.3}%
-\contentsline {subsection}{\numberline {9.4}Empréstimos e Devoluções}{28}{subsection.9.4}%
-\contentsline {subsection}{\numberline {9.5}Relatórios e Consultas Analíticas}{29}{subsection.9.5}%
-\contentsline {subsection}{\numberline {9.6}Consultas de Monitoramento}{30}{subsection.9.6}%
-\contentsline {subsection}{\numberline {9.7}Indicadores de Desempenho}{31}{subsection.9.7}%
-\contentsline {section}{\numberline {10}Conclusão}{31}{section.10}%
+\contentsline {section}{\numberline {1}Introdução}{3}{section.1}%
+\contentsline {section}{\numberline {2}Contextualização}{3}{section.2}%
+\contentsline {section}{\numberline {3}Descrição do Minimundo}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Objetivo do Sistema}{3}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Escopo Funcional}{3}{subsection.3.2}%
+\contentsline {section}{\numberline {4}Estruturas Principais}{4}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Entidades e Seus Atributos}{4}{subsection.4.1}%
+\contentsline {section}{\numberline {5}Regras de Negócio}{6}{section.5}%
+\contentsline {section}{\numberline {6}Operações do Sistema}{7}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Gestão de Acervo}{7}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Gestão de Usuários}{8}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Gestão de Empréstimos}{8}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}Relatórios e Análises}{9}{subsection.6.4}%
+\contentsline {section}{\numberline {7}Esquema Conceitual}{9}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Metodologia de Modelagem}{9}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Entidades do Modelo}{10}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Relacionamentos Principais}{11}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Diagrama ER}{11}{subsection.7.4}%
+\contentsline {section}{\numberline {8}Esquema Relacional}{12}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Processo de Mapeamento}{12}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Modelo Relacional}{14}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}Relações Resultantes}{15}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}Restrições de Integridade}{16}{subsection.8.4}%
+\contentsline {section}{\numberline {9}Operações e Consultas}{16}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Gestão do Acervo}{17}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}Gestão de Usuários}{18}{subsection.9.2}%
+\contentsline {subsection}{\numberline {9.3}Gestão de Empréstimos}{18}{subsection.9.3}%
+\contentsline {subsection}{\numberline {9.4}Relatórios e Análises}{19}{subsection.9.4}%
+\contentsline {section}{\numberline {10}Conclusão}{19}{section.10}%
