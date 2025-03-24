@@ -7,9 +7,9 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { CreateBookDto } from './dto/create-book.dto';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BooksService } from './books.service';
+import { CreateBookDto } from './dto/create-book.dto';
 
 @ApiTags('books')
 @Controller('books')
@@ -35,6 +35,13 @@ export class BooksController {
   @ApiResponse({ status: 200, description: 'Book details.' })
   async findOne(@Param('isbn') isbn: string) {
     return await this.booksService.findBookByIsbn(isbn);
+  }
+
+  @Get(':isbn/exemplars')
+  @ApiOperation({ summary: 'Retrieve all exemplars for a book by ISBN' })
+  @ApiResponse({ status: 200, description: 'List of book exemplars.' })
+  async findExemplars(@Param('isbn') isbn: string) {
+    return await this.booksService.findExemplarsByIsbn(isbn);
   }
 
   @Put(':isbn')

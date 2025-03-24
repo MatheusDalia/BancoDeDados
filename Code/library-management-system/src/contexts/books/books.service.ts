@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateBookDto } from './dto/create-book.dto';
 import { LivroRepository } from '../../infrastructure/repositories/livro.repository';
+import { CreateBookDto } from './dto/create-book.dto';
 
 @Injectable()
 export class BooksService {
@@ -20,6 +20,23 @@ export class BooksService {
       throw new NotFoundException(`Book with ISBN ${isbn} not found`);
     }
     return book;
+  }
+
+  async findExemplarsByIsbn(isbn: string) {
+    // First check if the book exists
+    const book = await this.livroRepository.findByIsbn(isbn);
+    if (!book) {
+      throw new NotFoundException(`Book with ISBN ${isbn} not found`);
+    }
+
+    // Then get all exemplars for this book
+    const bookWithDetails =
+      await this.livroRepository.findByIsbnWithDetails(isbn);
+    if (!bookWithDetails || !bookWithDetails.exemplares) {
+      return [];
+    }
+
+    return bookWithDetails.exemplares;
   }
 
   async updateBook(isbn: string, updateBookDto: Partial<CreateBookDto>) {
