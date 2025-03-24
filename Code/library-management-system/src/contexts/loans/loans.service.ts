@@ -1,18 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateLoanDto } from './dto/create-loan.dto';
 import { EmprestimoRepository } from '../../infrastructure/repositories/emprestimo.repository';
+import { CreateLoanDto } from './dto/create-loan.dto';
 
 @Injectable()
 export class LoansService {
   constructor(private readonly emprestimoRepository: EmprestimoRepository) {}
 
   async createLoan(createLoanDto: CreateLoanDto) {
-    const { userId, exemplarId, dueDate, remarks } = createLoanDto;
+    const { usuario_id, exemplar_id, data_devolucao_prevista, observacoes } =
+      createLoanDto;
     return await this.emprestimoRepository.createLoan(
-      userId,
-      exemplarId,
-      new Date(dueDate),
-      remarks,
+      usuario_id,
+      exemplar_id,
+      new Date(data_devolucao_prevista),
+      observacoes,
     );
   }
 

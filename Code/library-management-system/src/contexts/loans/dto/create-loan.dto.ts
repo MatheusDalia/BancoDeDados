@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsDateString,
   IsNotEmpty,
   IsNumber,
-  IsDateString,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -11,7 +11,7 @@ export class CreateLoanDto {
   @ApiProperty({ example: 1, description: 'User ID associated with the loan' })
   @IsNotEmpty()
   @IsNumber()
-  userId: number;
+  usuario_id: number;
 
   @ApiProperty({
     example: 'EX12345',
@@ -19,7 +19,7 @@ export class CreateLoanDto {
   })
   @IsNotEmpty()
   @IsString()
-  exemplarId: string;
+  exemplar_id: string;
 
   @ApiProperty({
     example: '2025-04-01',
@@ -27,7 +27,7 @@ export class CreateLoanDto {
   })
   @IsNotEmpty()
   @IsDateString()
-  dueDate: string;
+  data_devolucao_prevista: string;
 
   @ApiProperty({
     example: 'Handle with care',
@@ -36,5 +36,5 @@ export class CreateLoanDto {
   })
   @IsOptional()
   @IsString()
-  remarks?: string;
+  observacoes?: string;
 }
